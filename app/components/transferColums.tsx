@@ -17,20 +17,18 @@ import { ArrowUpDown, Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 
 
 type Transaction = {
-  storeId: string;
-  paymentMethod: string;
-  number: string;
-  transactionId: string;
-  last4: string;
-  previousBalance: number;
-  amount: number;
-  currentBalance: number;
-  status: "success" | "pending" | "failed";
-  dateTime: string;
-  comments: string;
+    storeId: string;
+    paymentMethod: string;
+    number: string;
+    transactionId: string;
+    updateTime: string;
+    previousBalance: number;
+    amount: number;
+    currentBalance: number;
+    status: "success" | "pending" | "failed";
+    dateTime: string;
+    comments: string;
 };
-
-
 
 
 export const columns: ColumnDef<Transaction>[] = [
@@ -64,7 +62,7 @@ export const columns: ColumnDef<Transaction>[] = [
         },
         cell: ({ row }) => <div>{row.getValue("paymentMethod")}</div>,
     },
-        {
+    {
         accessorKey: "number",
         header: ({ column }) => {
             return (
@@ -87,20 +85,6 @@ export const columns: ColumnDef<Transaction>[] = [
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     Transaction ID
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
-    },
-    {
-        accessorKey: "last4",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Last 4 Digits
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
@@ -182,6 +166,20 @@ export const columns: ColumnDef<Transaction>[] = [
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     Date & Time
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+    },
+    {
+        accessorKey: "updateTime",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Update Time
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )

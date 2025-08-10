@@ -48,7 +48,7 @@ type Transaction = {
   paymentMethod: string;
   number: string;
   transactionId: string;
-  last4: string;
+  updateTime: string;
   previousBalance: number;
   amount: number;
   currentBalance: number;
@@ -64,7 +64,7 @@ const transactions: Transaction[] = [
     paymentMethod: "Credit Card",
     number: "+1-202-555-0101",
     transactionId: "TXN10001",
-    last4: "4242",
+    updateTime: "4242",
     previousBalance: 1200,
     amount: 200,
     currentBalance: 1000,
@@ -77,7 +77,7 @@ const transactions: Transaction[] = [
     paymentMethod: "PayPal",
     number: "+1-202-555-0102",
     transactionId: "TXN10002",
-    last4: "8931",
+    updateTime: "8931",
     previousBalance: 1000,
     amount: 150,
     currentBalance: 850,
@@ -90,7 +90,7 @@ const transactions: Transaction[] = [
     paymentMethod: "Bank Transfer",
     number: "+1-202-555-0103",
     transactionId: "TXN10003",
-    last4: "6723",
+    updateTime: "6723",
     previousBalance: 850,
     amount: 300,
     currentBalance: 550,
@@ -103,7 +103,7 @@ const transactions: Transaction[] = [
     paymentMethod: "Stripe",
     number: "+1-202-555-0104",
     transactionId: "TXN10004",
-    last4: "0912",
+    updateTime: "0912",
     previousBalance: 550,
     amount: 450,
     currentBalance: 100,
@@ -116,7 +116,7 @@ const transactions: Transaction[] = [
     paymentMethod: "Checking Account",
     number: "+1-202-555-0105",
     transactionId: "TXN10005",
-    last4: "3333",
+    updateTime: "3333",
     previousBalance: 100,
     amount: 100,
     currentBalance: 0,
@@ -129,7 +129,7 @@ const transactions: Transaction[] = [
     paymentMethod: "Savings Account",
     number: "+1-202-555-0106",
     transactionId: "TXN10006",
-    last4: "9988",
+    updateTime: "9988",
     previousBalance: 300,
     amount: 75,
     currentBalance: 225,
@@ -142,7 +142,7 @@ const transactions: Transaction[] = [
     paymentMethod: "UPI",
     number: "+1-202-555-0107",
     transactionId: "TXN10007",
-    last4: "5619",
+    updateTime: "5619",
     previousBalance: 225,
     amount: 25,
     currentBalance: 200,
@@ -155,7 +155,7 @@ const transactions: Transaction[] = [
     paymentMethod: "Debit Card",
     number: "+1-202-555-0108",
     transactionId: "TXN10008",
-    last4: "2121",
+    updateTime: "2121",
     previousBalance: 200,
     amount: 80,
     currentBalance: 120,
@@ -278,6 +278,7 @@ export default function Page() {
                     table.getRowModel().rows.map((row) => (
                         <TableRow
                         key={row.id}
+                        className=""
                         data-state={row.getIsSelected() && "selected"}
                         >
                         {row.getVisibleCells().map((cell) => (

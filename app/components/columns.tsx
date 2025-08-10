@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Row } from "@tanstack/react-table"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -28,7 +28,7 @@ type Transaction = {
     status: "success" | "pending" | "failed";
 };
 
-
+const isAdmin = false; // Replace with actual admin check logic
 
 export const columns: ColumnDef<Transaction>[] = [
     {
@@ -192,51 +192,55 @@ export const columns: ColumnDef<Transaction>[] = [
             return value.includes(row.getValue(id))
         },
     },
+...(isAdmin
+    ? [
+        {
+            accessorKey: "actions",
+            header: () => (
+                <div className="text-right font-semibold">Actions</div>
+            ),
+            cell: ({ row }: { row: Row<Transaction> }) => {
+                const rowData = row.original;
 
-    {
-        accessorKey: "actions",
-        header: () => (
-            <div className="text-right font-semibold">Actions</div>
-        ),
-        cell: ({ row }) => {
-            const rowData = row.original;
-
-            return (
-                <div className="text-right">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="w-5 h-5" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                onClick={() => console.log("View", rowData)}
-                                className="cursor-pointer"
-                            >
-                                <Eye className="w-4 h-4 mr-2" />
-                                View
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => console.log("Edit", rowData)}
-                                className="cursor-pointer"
-                            >
-                                <Pencil className="w-4 h-4 mr-2" />
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => console.log("Delete", rowData)}
-                                className="text-red-600 cursor-pointer"
-                            >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            );
-        },
-    }
+                return (
+                    <div className="text-right">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="w-5 h-5" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() => console.log("View", rowData)}
+                                    className="cursor-pointer"
+                                >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    View
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => console.log("Edit", rowData)}
+                                    className="cursor-pointer"
+                                >
+                                    <Pencil className="w-4 h-4 mr-2" />
+                                    Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => console.log("Delete", rowData)}
+                                    className="text-red-600 cursor-pointer"
+                                >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                );
+            },
+        }
+    ]
+    : []
+)
 ]
