@@ -51,13 +51,12 @@ import Image from "next/image";
 type SideNavProps = {
   collapsed: boolean;
   toggleSidebar: () => void;
+  role?: 'admin' | 'user' | 'staff';
 };
 
- const isAdmin = true; 
-  const isStaff = false;
-  const isUser = false; 
 
-export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
+
+export async function SideNav({ role, collapsed, toggleSidebar }: SideNavProps) {
   const pathname = usePathname();
   const [activeSubItem, setActiveSubItem] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -68,9 +67,10 @@ export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
   // Track which popover is open (when collapsed)
   const [openId, setOpenId] = useState<string | null>(null);
 
+
   // Filter items based on user role
   const navItems = useMemo(() => {
-    if (isAdmin) {
+    if (role === "admin") {
       return [
         { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { href: "/admin/user-list", icon: Users, label: "User List" },
@@ -89,7 +89,7 @@ export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
         },
         { href: "/admin/settings", icon: Settings, label: "Settings" },
       ];
-    } else if (isStaff) {
+    } else if (role === "staff") {
       return [
         { href: "/staff/dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { href: "/staff/deposit", icon: ArrowRightLeft, label: "Deposit" },
@@ -105,7 +105,7 @@ export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
         },
         { href: "/staff/settings", icon: Settings, label: "Settings" },
       ];
-    } else if (isUser) {
+    } else if (role === "user") {
       return [
         { href: "/user/dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { href: "/user/deposit", icon: ArrowRightLeft, label: "Deposit" },
@@ -123,7 +123,7 @@ export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
       ];
     }
     return []; // In case no role is found
-  }, [isAdmin, isStaff, isUser]);
+  }, [role]);
 
 
   useEffect(() => {
@@ -159,10 +159,10 @@ export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
 
   // Filter items based on admin status
   const itemsToRender = useMemo(() => {
-    if (isAdmin) return navItems;
+    if (role === "admin") return navItems;
     const hide = new Set(["/user-list", "/staff-list"]);
     return navItems.filter((i) => !hide.has(i.href));
-  }, [isAdmin]);
+  }, [role]);
 
   return (
     <>

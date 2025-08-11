@@ -7,7 +7,7 @@ const HomePage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const role: string = "staff";
+    const role: string = "admin";
 
     if (role === "admin") {
       router.push("/admin/dashboard");  
