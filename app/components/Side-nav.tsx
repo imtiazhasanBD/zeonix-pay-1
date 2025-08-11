@@ -13,8 +13,6 @@ import {
   Users,
   UserCog,
 } from "lucide-react";
-import { MdPeopleAlt } from "react-icons/md";
-import { IoIosPeople } from "react-icons/io";
 import { Wallet, Eye, EyeOff } from "lucide-react";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import React, { useEffect, useMemo, useState } from "react";
@@ -22,7 +20,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import Image from "next/image";
 
-const navItems = [
+/* const navItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/user-list", icon: Users, label: "User List" },
   { href: "/staff-list", icon: UserCog, label: "Staff List" },
@@ -48,12 +46,16 @@ const navItems = [
   //   ],
   // },
   { href: "/settings", icon: Settings, label: "Settings" },
-];
+]; */
 
 type SideNavProps = {
   collapsed: boolean;
   toggleSidebar: () => void;
 };
+
+ const isAdmin = true; 
+  const isStaff = false;
+  const isUser = false; 
 
 export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
   const pathname = usePathname();
@@ -65,7 +67,64 @@ export function SideNav({ collapsed, toggleSidebar }: SideNavProps) {
 
   // Track which popover is open (when collapsed)
   const [openId, setOpenId] = useState<string | null>(null);
-  const isAdmin = true; 
+
+  // Filter items based on user role
+  const navItems = useMemo(() => {
+    if (isAdmin) {
+      return [
+        { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+        { href: "/admin/user-list", icon: Users, label: "User List" },
+        { href: "/admin/staff-list", icon: UserCog, label: "Staff List" },
+        { href: "/admin/deposit", icon: ArrowRightLeft, label: "Deposit" },
+        { href: "/admin/payout", icon: Send, label: "Payout" },
+        {
+          href: "/admin/payment-withdrawal",
+          icon: Landmark,
+          label: "Payment Withdrawal",
+          subItems: [
+            { href: "/admin/payment-withdrawal/request", label: "Request Withdrawal" },
+            { href: "/admin/payment-withdrawal/report", label: "Withdrawal Report" },
+            { href: "/admin/payment-withdrawal/methods", label: "Payment Methods" },
+          ],
+        },
+        { href: "/admin/settings", icon: Settings, label: "Settings" },
+      ];
+    } else if (isStaff) {
+      return [
+        { href: "/staff/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+        { href: "/staff/deposit", icon: ArrowRightLeft, label: "Deposit" },
+        {
+          href: "/staff/payment-withdrawal",
+          icon: Landmark,
+          label: "Payment Withdrawal",
+          subItems: [
+            { href: "/staff/payment-withdrawal/request", label: "Request Withdrawal" },
+            { href: "/staff/payment-withdrawal/report", label: "Withdrawal Report" },
+            { href: "/staff/payment-withdrawal/methods", label: "Payment Methods" },
+          ],
+        },
+        { href: "/staff/settings", icon: Settings, label: "Settings" },
+      ];
+    } else if (isUser) {
+      return [
+        { href: "/user/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+        { href: "/user/deposit", icon: ArrowRightLeft, label: "Deposit" },
+        {
+          href: "/user/payment-withdrawal",
+          icon: Landmark,
+          label: "Payment Withdrawal",
+          subItems: [
+            { href: "/user/payment-withdrawal/request", label: "Request Withdrawal" },
+            { href: "/user/payment-withdrawal/report", label: "Withdrawal Report" },
+            { href: "/user/payment-withdrawal/methods", label: "Payment Methods" },
+          ],
+        },
+        { href: "/user/settings", icon: Settings, label: "Settings" },
+      ];
+    }
+    return []; // In case no role is found
+  }, [isAdmin, isStaff, isUser]);
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;

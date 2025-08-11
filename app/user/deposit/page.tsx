@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -40,131 +39,131 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, ArrowUpDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { columns } from "@/app/components/reportColumns"
 import { DataTableFacetedFilter } from "@/app/components/data-table-faceted-filter"
+import {columns} from "@/app/components/columns";
 
 type Transaction = {
   storeId: string;
-  paymentMethod: string;
-  number: string;
+  ipAddress: string;
   transactionId: string;
-  last4: string;
-  previousBalance: number;
+  name: string;
+  email: string;
   amount: number;
-  currentBalance: number;
-  status: "success" | "pending" | "failed";
+  paymentMethod: string;
   dateTime: string;
-  comments: string;
+  status: "success" | "pending" | "failed";
+  previousBalance: number;
+  currentBalance: number;
 };
+
 
 
 const transactions: Transaction[] = [
   {
     storeId: "STR-001",
+    ipAddress: "192.168.1.10",
+    transactionId: "TXN12345",
+    name: "Liam Johnson",
+    email: "liam@example.com",
+    amount: 250.0,
     paymentMethod: "Credit Card",
-    number: "+1-202-555-0101",
-    transactionId: "TXN10001",
-    last4: "4242",
-    previousBalance: 1200,
-    amount: 200,
-    currentBalance: 1000,
+    dateTime: "2023-06-23 10:30 AM",
     status: "success",
-    dateTime: "2023-08-01 10:00 AM",
-    comments: "Paid in full",
+    previousBalance: 1000.0,
+    currentBalance: 750.0,
   },
   {
     storeId: "STR-002",
+    ipAddress: "192.168.1.11",
+    transactionId: "TXN12346",
+    name: "Olivia Smith",
+    email: "olivia@example.com",
+    amount: 150.0,
     paymentMethod: "PayPal",
-    number: "+1-202-555-0102",
-    transactionId: "TXN10002",
-    last4: "8931",
-    previousBalance: 1000,
-    amount: 150,
-    currentBalance: 850,
-    status: "pending",
-    dateTime: "2023-08-02 11:15 AM",
-    comments: "Awaiting confirmation",
+    dateTime: "2023-06-24 01:15 PM",
+    status: "success",
+    previousBalance: 750.0,
+    currentBalance: 600.0,
   },
   {
     storeId: "STR-003",
+    ipAddress: "192.168.1.12",
+    transactionId: "TXN12347",
+    name: "Noah Williams",
+    email: "noah@example.com",
+    amount: 350.0,
     paymentMethod: "Bank Transfer",
-    number: "+1-202-555-0103",
-    transactionId: "TXN10003",
-    last4: "6723",
-    previousBalance: 850,
-    amount: 300,
-    currentBalance: 550,
-    status: "success",
-    dateTime: "2023-08-03 02:45 PM",
-    comments: "Urgent processing",
+    dateTime: "2023-06-25 09:00 AM",
+    status: "pending",
+    previousBalance: 600.0,
+    currentBalance: 600.0,
   },
   {
     storeId: "STR-004",
-    paymentMethod: "Stripe",
-    number: "+1-202-555-0104",
-    transactionId: "TXN10004",
-    last4: "0912",
-    previousBalance: 550,
-    amount: 450,
-    currentBalance: 100,
-    status: "failed",
-    dateTime: "2023-08-04 09:30 AM",
-    comments: "Card declined",
+    ipAddress: "192.168.1.13",
+    transactionId: "TXN12348",
+    name: "Emma Brown",
+    email: "emma@example.com",
+    amount: 450.0,
+    paymentMethod: "Credit Card",
+    dateTime: "2023-06-26 03:45 PM",
+    status: "success",
+    previousBalance: 600.0,
+    currentBalance: 150.0,
   },
   {
     storeId: "STR-005",
-    paymentMethod: "Checking Account",
-    number: "+1-202-555-0105",
-    transactionId: "TXN10005",
-    last4: "3333",
-    previousBalance: 100,
-    amount: 100,
-    currentBalance: 0,
-    status: "success",
-    dateTime: "2023-08-05 04:00 PM",
-    comments: "Final installment",
+    ipAddress: "192.168.1.14",
+    transactionId: "TXN12349",
+    name: "James Jones",
+    email: "james@example.com",
+    amount: 550.0,
+    paymentMethod: "Stripe",
+    dateTime: "2023-06-27 08:20 AM",
+    status: "failed",
+    previousBalance: 150.0,
+    currentBalance: 150.0,
   },
   {
     storeId: "STR-006",
-    paymentMethod: "Savings Account",
-    number: "+1-202-555-0106",
-    transactionId: "TXN10006",
-    last4: "9988",
-    previousBalance: 300,
-    amount: 75,
-    currentBalance: 225,
+    ipAddress: "192.168.1.15",
+    transactionId: "TXN54321",
+    name: "Alice Wonderland",
+    email: "alice@example.com",
+    amount: 100.0,
+    paymentMethod: "Checking Account",
+    dateTime: "2023-07-01 02:00 PM",
     status: "success",
-    dateTime: "2023-08-06 01:25 PM",
-    comments: "Promo applied",
+    previousBalance: 150.0,
+    currentBalance: 50.0,
   },
   {
     storeId: "STR-007",
-    paymentMethod: "UPI",
-    number: "+1-202-555-0107",
-    transactionId: "TXN10007",
-    last4: "5619",
-    previousBalance: 225,
-    amount: 25,
-    currentBalance: 200,
+    ipAddress: "192.168.1.16",
+    transactionId: "TXN54322",
+    name: "Bob Builder",
+    email: "bob@example.com",
+    amount: 75.5,
+    paymentMethod: "Savings Account",
+    dateTime: "2023-07-02 11:30 AM",
     status: "pending",
-    dateTime: "2023-08-07 12:10 PM",
-    comments: "UPI delay",
+    previousBalance: 50.0,
+    currentBalance: 50.0,
   },
   {
     storeId: "STR-008",
-    paymentMethod: "Debit Card",
-    number: "+1-202-555-0108",
-    transactionId: "TXN10008",
-    last4: "2121",
-    previousBalance: 200,
-    amount: 80,
-    currentBalance: 120,
-    status: "success",
-    dateTime: "2023-08-08 03:40 PM",
-    comments: "Standard transaction",
+    ipAddress: "192.168.1.17",
+    transactionId: "TXN54323",
+    name: "Charlie Chocolate",
+    email: "charlie@example.com",
+    amount: 200.0,
+    paymentMethod: "Checking Account",
+    dateTime: "2023-07-03 05:15 PM",
+    status: "failed",
+    previousBalance: 50.0,
+    currentBalance: 50.0,
   },
 ];
-
 
 
 
@@ -212,10 +211,10 @@ export default function Page() {
         <div className="w-full">
             <div className="flex items-center py-4 gap-2">
                 <Input
-                placeholder="Filter by email..."
-                value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                placeholder="Filter by transactionId..."
+                value={(table.getColumn("transactionId")?.getFilterValue() as string) ?? ""}
                 onChange={(event) =>
-                    table.getColumn("email")?.setFilterValue(event.target.value)
+                    table.getColumn("transactionId")?.setFilterValue(event.target.value)
                 }
                 className="max-w-sm"
                 />
@@ -326,5 +325,6 @@ export default function Page() {
             </div>
       </CardContent>
     </Card>
+
   )
 }

@@ -39,8 +39,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, ArrowUpDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { DataTableFacetedFilter } from "../components/data-table-faceted-filter"
-import {columns} from "../components/columns";
+import { DataTableFacetedFilter } from "@/app/components/data-table-faceted-filter"
+import {columns} from "@/app/components/columns";
 
 type Transaction = {
   storeId: string;
@@ -211,10 +211,10 @@ export default function Page() {
         <div className="w-full">
             <div className="flex items-center py-4 gap-2">
                 <Input
-                placeholder="Filter by email..."
-                value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                placeholder="Filter by transactionId..."
+                value={(table.getColumn("transactionId")?.getFilterValue() as string) ?? ""}
                 onChange={(event) =>
-                    table.getColumn("email")?.setFilterValue(event.target.value)
+                    table.getColumn("transactionId")?.setFilterValue(event.target.value)
                 }
                 className="max-w-sm"
                 />

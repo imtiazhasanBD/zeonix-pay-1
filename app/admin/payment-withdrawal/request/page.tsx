@@ -21,11 +21,10 @@ type Method = "bank" | "mobileBanking" | "crypto" | null;
 type SavedPaymentMethod = {
   id: string;
   method: Exclude<Method, null>;
-  details: string;        // masked display text
+  details: string; // masked display text
   isPrimary: boolean;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
 };
-
 const STORAGE_KEY = "paymentMethods";
 const MANAGE_PATH = "/payment-withdrawal/methods";
 

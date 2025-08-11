@@ -37,12 +37,30 @@ import clsx from "clsx";
 
 type Method = "bank" | "mobileBanking" | "crypto";
 
+type BankMeta = {
+  holderName: string;
+  accountNumber: string;
+  bankName: string;
+  branchName?: string;
+};
+
+type MobileBankingMeta = {
+  mobileProvider?: string;
+  accountType: string;
+  phoneNumber: string;
+};
+
+type CryptoMeta = {
+  cryptoMethod?: string;
+  cryptoId: string;
+};
+
 type PaymentMethodItem = {
   id: string;
   method: Method;
   details: string;
   isPrimary: boolean;
-  meta?: Record<string, any>;
+  meta?: BankMeta | MobileBankingMeta | CryptoMeta;
 };
 
 const STORAGE_KEY = "paymentMethods";
@@ -56,21 +74,19 @@ const methodIconMap: Record<Method, React.ComponentType<{ className?: string }>>
 
 function getProviderAsset(
   method: Method,
-  meta?: Record<string, any>
+  meta?: BankMeta | MobileBankingMeta | CryptoMeta
 ): { src?: string; alt?: string } {
   if (method === "mobileBanking") {
-    const p = (meta?.mobileProvider || "").toLowerCase();
+    const p = (meta as MobileBankingMeta)?.mobileProvider?.toLowerCase();
     if (p === "bkash") return { src: "/bkash.png", alt: "Bkash" };
     if (p === "nagad") return { src: "/nagad.jpg", alt: "Nagad" };
   }
   if (method === "crypto") {
-    const c = (meta?.cryptoMethod || "").toLowerCase();
+    const c = (meta as CryptoMeta)?.cryptoMethod?.toLowerCase();
     if (c === "binance") return { src: "/binance.png", alt: "Binance" };
     if (c === "bybit") return { src: "/bybit.png", alt: "Bybit" };
     if (c === "trc20") return { src: "/trc20.png", alt: "TRC20" };
   }
-  // Optional: if you have a bank logo, return it here
-  // if (method === "bank") return { src: "/bank.png", alt: "Bank" };
   return {};
 }
 
@@ -80,7 +96,7 @@ function ProviderLogo({
   className,
 }: {
   method: Method;
-  meta?: Record<string, any>;
+  meta?: BankMeta | MobileBankingMeta | CryptoMeta;
   className?: string;
 }) {
   const { src, alt } = getProviderAsset(method, meta);
@@ -127,26 +143,21 @@ const Page = () => {
   const [cryptoMethod, setCryptoMethod] = useState<string | undefined>();
   const [cryptoId, setCryptoId] = useState("");
 
-
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(methods));
     } catch {}
   }, [methods]);
 
-  // Clean form when method changes
   useEffect(() => {
     setMakePrimary(false);
-    // Reset all fields not used by the new method
     setHolderName("");
     setAccountNumber("");
     setBankName("");
     setBranchName("");
-
     setMobileProvider(undefined);
     setAccountType("personal");
     setPhoneNumber("");
-
     setCryptoMethod(undefined);
     setCryptoId("");
   }, [method]);
@@ -171,7 +182,6 @@ const Page = () => {
       const label = mobileProvider?.charAt(0).toUpperCase() + (mobileProvider?.slice(1) || "");
       return `${label || "Mobile"} **** ${last4 || "••••"}`;
     }
-    // crypto
     const last4 = cryptoId.slice(-4);
     if (cryptoMethod === "trc20") return `TRC20 **** ${last4 || "••••"}`;
     if (cryptoMethod === "binance") return `Binance Pay ID **** ${last4 || "••••"}`;
@@ -182,7 +192,6 @@ const Page = () => {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Build item
     const newItem: PaymentMethodItem = {
       id: idSafe,
       method,
@@ -207,14 +216,15 @@ const Page = () => {
     setOpen(false);
   };
 
-  // helpers for select trigger icons
   const mobileProviderLogo = getProviderAsset("mobileBanking", {
     mobileProvider,
+    accountType,
+    phoneNumber,
   });
   const cryptoProviderLogo = getProviderAsset("crypto", {
     cryptoMethod,
+    cryptoId,
   });
-
 
   return (
     <Card>
@@ -238,7 +248,7 @@ const Page = () => {
             </DialogHeader>
 
             <form onSubmit={onSubmit} className="space-y-5">
-              {/* Method picker (with icons) */}
+              {/* Method picker */}
               <div className="space-y-2">
                 <Label className="block">Method</Label>
                 <RadioGroup
@@ -273,7 +283,7 @@ const Page = () => {
                 </RadioGroup>
               </div>
 
-              {/* Dynamic fields */}
+              {/* Bank form */}
               {method === "bank" && (
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -318,31 +328,30 @@ const Page = () => {
                 </div>
               )}
 
+              {/* Mobile banking form */}
               {method === "mobileBanking" && (
                 <div className="space-y-3">
                   <div>
                     <Label>Payment Method</Label>
-                    <div className="relative">
-                      <Select value={mobileProvider} onValueChange={setMobileProvider}>
-                        <SelectTrigger className="">
-                          <SelectValue placeholder="Select Payment Method" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="bkash">
-                            <span className="flex items-center gap-2">
-                              <Image src="/bkash.png" alt="Bkash" width={16} height={16} />
-                              Bkash
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="nagad">
-                            <span className="flex items-center gap-2">
-                              <Image src="/nagad.jpg" alt="Nagad" width={16} height={16} />
-                              Nagad
-                            </span>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Select value={mobileProvider} onValueChange={setMobileProvider}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Payment Method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bkash">
+                          <span className="flex items-center gap-2">
+                            <Image src="/bkash.png" alt="Bkash" width={16} height={16} />
+                            Bkash
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="nagad">
+                          <span className="flex items-center gap-2">
+                            <Image src="/nagad.jpg" alt="Nagad" width={16} height={16} />
+                            Nagad
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
@@ -353,7 +362,6 @@ const Page = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="personal">Personal</SelectItem>
-                        {/* add more types if needed */}
                       </SelectContent>
                     </Select>
                   </div>
@@ -371,37 +379,36 @@ const Page = () => {
                 </div>
               )}
 
+              {/* Crypto form */}
               {method === "crypto" && (
                 <div className="space-y-3">
                   <div>
                     <Label>Payment Method</Label>
-                    <div className="relative">
-                      <Select value={cryptoMethod} onValueChange={setCryptoMethod}>
-                        <SelectTrigger className="pl-9">
-                          <SelectValue placeholder="Select Payment Method type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="binance">
-                            <span className="flex items-center gap-2">
-                              <Image src="/binance.png" alt="Binance" width={16} height={16} />
-                              Binance
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="bybit">
-                            <span className="flex items-center gap-2">
-                              <Image src="/bybit.png" alt="Bybit" width={16} height={16} />
-                              Bybit
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="trc20">
-                            <span className="flex items-center gap-2">
-                              <Image src="/trc20.png" alt="TRC20" width={16} height={16} />
-                              TRC20
-                            </span>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Select value={cryptoMethod} onValueChange={setCryptoMethod}>
+                      <SelectTrigger className="pl-9">
+                        <SelectValue placeholder="Select Payment Method type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="binance">
+                          <span className="flex items-center gap-2">
+                            <Image src="/binance.png" alt="Binance" width={16} height={16} />
+                            Binance
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="bybit">
+                          <span className="flex items-center gap-2">
+                            <Image src="/bybit.png" alt="Bybit" width={16} height={16} />
+                            Bybit
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="trc20">
+                          <span className="flex items-center gap-2">
+                            <Image src="/trc20.png" alt="TRC20" width={16} height={16} />
+                            TRC20
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
@@ -434,8 +441,16 @@ const Page = () => {
                   <Label htmlFor="makePrimary">Make Primary</Label>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  {/* preview icon */}
-                  <ProviderLogo method={method} meta={{ mobileProvider, cryptoMethod }} />
+                  <ProviderLogo
+                    method={method}
+                    meta={
+                      method === "bank"
+                        ? { holderName, accountNumber, bankName, branchName }
+                        : method === "mobileBanking"
+                        ? { mobileProvider, accountType, phoneNumber }
+                        : { cryptoMethod, cryptoId }
+                    }
+                  />
                   <span>
                     Preview: <span className="font-medium">{detailsPreview}</span>
                   </span>
