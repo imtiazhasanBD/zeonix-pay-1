@@ -253,14 +253,14 @@ export default function Page() {
                 </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-hidden">
                 <Table>
-                <TableHeader>
+                <TableHeader className="bg-customViolet hover:bg-customViolet text-white">
                     {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
+                    <TableRow key={headerGroup.id} className="hover:bg-customViolet">
                         {headerGroup.headers.map((header) => {
                         return (
-                            <TableHead key={header.id}>
+                            <TableHead key={header.id} className="text-white">
                             {header.isPlaceholder
                                 ? null
                                 : flexRender(

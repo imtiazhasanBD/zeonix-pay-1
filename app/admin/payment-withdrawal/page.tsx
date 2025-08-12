@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import {
+  ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -37,132 +38,133 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, ArrowUpDown } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { columns } from "@/app/components/reportColumns"
 import { DataTableFacetedFilter } from "@/app/components/data-table-faceted-filter"
-import {columns} from "@/app/components/columns";
 
 type Transaction = {
   storeId: string;
-  ipAddress: string;
-  transactionId: string;
-  name: string;
-  email: string;
-  amount: number;
   paymentMethod: string;
-  dateTime: string;
-  status: "success" | "pending" | "failed";
+  number: string;
+  transactionId: string;
+  last4: string;
   previousBalance: number;
+  amount: number;
   currentBalance: number;
+  status: "success" | "pending" | "failed";
+  dateTime: string;
+  comments: string;
 };
-
 
 
 const transactions: Transaction[] = [
   {
     storeId: "STR-001",
-    ipAddress: "192.168.1.10",
-    transactionId: "TXN12345",
-    name: "Liam Johnson",
-    email: "liam@example.com",
-    amount: 250.0,
     paymentMethod: "Credit Card",
-    dateTime: "2023-06-23 10:30 AM",
+    number: "+1-202-555-0101",
+    transactionId: "TXN10001",
+    last4: "4242",
+    previousBalance: 1200,
+    amount: 200,
+    currentBalance: 1000,
     status: "success",
-    previousBalance: 1000.0,
-    currentBalance: 750.0,
+    dateTime: "2023-08-01 10:00 AM",
+    comments: "Paid in full",
   },
   {
     storeId: "STR-002",
-    ipAddress: "192.168.1.11",
-    transactionId: "TXN12346",
-    name: "Olivia Smith",
-    email: "olivia@example.com",
-    amount: 150.0,
     paymentMethod: "PayPal",
-    dateTime: "2023-06-24 01:15 PM",
-    status: "success",
-    previousBalance: 750.0,
-    currentBalance: 600.0,
+    number: "+1-202-555-0102",
+    transactionId: "TXN10002",
+    last4: "8931",
+    previousBalance: 1000,
+    amount: 150,
+    currentBalance: 850,
+    status: "pending",
+    dateTime: "2023-08-02 11:15 AM",
+    comments: "Awaiting confirmation",
   },
   {
     storeId: "STR-003",
-    ipAddress: "192.168.1.12",
-    transactionId: "TXN12347",
-    name: "Noah Williams",
-    email: "noah@example.com",
-    amount: 350.0,
     paymentMethod: "Bank Transfer",
-    dateTime: "2023-06-25 09:00 AM",
-    status: "pending",
-    previousBalance: 600.0,
-    currentBalance: 600.0,
+    number: "+1-202-555-0103",
+    transactionId: "TXN10003",
+    last4: "6723",
+    previousBalance: 850,
+    amount: 300,
+    currentBalance: 550,
+    status: "success",
+    dateTime: "2023-08-03 02:45 PM",
+    comments: "Urgent processing",
   },
   {
     storeId: "STR-004",
-    ipAddress: "192.168.1.13",
-    transactionId: "TXN12348",
-    name: "Emma Brown",
-    email: "emma@example.com",
-    amount: 450.0,
-    paymentMethod: "Credit Card",
-    dateTime: "2023-06-26 03:45 PM",
-    status: "success",
-    previousBalance: 600.0,
-    currentBalance: 150.0,
+    paymentMethod: "Stripe",
+    number: "+1-202-555-0104",
+    transactionId: "TXN10004",
+    last4: "0912",
+    previousBalance: 550,
+    amount: 450,
+    currentBalance: 100,
+    status: "failed",
+    dateTime: "2023-08-04 09:30 AM",
+    comments: "Card declined",
   },
   {
     storeId: "STR-005",
-    ipAddress: "192.168.1.14",
-    transactionId: "TXN12349",
-    name: "James Jones",
-    email: "james@example.com",
-    amount: 550.0,
-    paymentMethod: "Stripe",
-    dateTime: "2023-06-27 08:20 AM",
-    status: "failed",
-    previousBalance: 150.0,
-    currentBalance: 150.0,
+    paymentMethod: "Checking Account",
+    number: "+1-202-555-0105",
+    transactionId: "TXN10005",
+    last4: "3333",
+    previousBalance: 100,
+    amount: 100,
+    currentBalance: 0,
+    status: "success",
+    dateTime: "2023-08-05 04:00 PM",
+    comments: "Final installment",
   },
   {
     storeId: "STR-006",
-    ipAddress: "192.168.1.15",
-    transactionId: "TXN54321",
-    name: "Alice Wonderland",
-    email: "alice@example.com",
-    amount: 100.0,
-    paymentMethod: "Checking Account",
-    dateTime: "2023-07-01 02:00 PM",
+    paymentMethod: "Savings Account",
+    number: "+1-202-555-0106",
+    transactionId: "TXN10006",
+    last4: "9988",
+    previousBalance: 300,
+    amount: 75,
+    currentBalance: 225,
     status: "success",
-    previousBalance: 150.0,
-    currentBalance: 50.0,
+    dateTime: "2023-08-06 01:25 PM",
+    comments: "Promo applied",
   },
   {
     storeId: "STR-007",
-    ipAddress: "192.168.1.16",
-    transactionId: "TXN54322",
-    name: "Bob Builder",
-    email: "bob@example.com",
-    amount: 75.5,
-    paymentMethod: "Savings Account",
-    dateTime: "2023-07-02 11:30 AM",
+    paymentMethod: "UPI",
+    number: "+1-202-555-0107",
+    transactionId: "TXN10007",
+    last4: "5619",
+    previousBalance: 225,
+    amount: 25,
+    currentBalance: 200,
     status: "pending",
-    previousBalance: 50.0,
-    currentBalance: 50.0,
+    dateTime: "2023-08-07 12:10 PM",
+    comments: "UPI delay",
   },
   {
     storeId: "STR-008",
-    ipAddress: "192.168.1.17",
-    transactionId: "TXN54323",
-    name: "Charlie Chocolate",
-    email: "charlie@example.com",
-    amount: 200.0,
-    paymentMethod: "Checking Account",
-    dateTime: "2023-07-03 05:15 PM",
-    status: "failed",
-    previousBalance: 50.0,
-    currentBalance: 50.0,
+    paymentMethod: "Debit Card",
+    number: "+1-202-555-0108",
+    transactionId: "TXN10008",
+    last4: "2121",
+    previousBalance: 200,
+    amount: 80,
+    currentBalance: 120,
+    status: "success",
+    dateTime: "2023-08-08 03:40 PM",
+    comments: "Standard transaction",
   },
 ];
+
 
 
 
@@ -251,14 +253,14 @@ export default function Page() {
                 </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-hidden">
                 <Table>
-                <TableHeader>
+                <TableHeader className="bg-customViolet hover:bg-customViolet text-white">
                     {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
+                    <TableRow key={headerGroup.id} className="hover:bg-customViolet">
                         {headerGroup.headers.map((header) => {
                         return (
-                            <TableHead key={header.id}>
+                            <TableHead key={header.id} className="text-white">
                             {header.isPlaceholder
                                 ? null
                                 : flexRender(
@@ -324,6 +326,5 @@ export default function Page() {
             </div>
       </CardContent>
     </Card>
-
   )
 }

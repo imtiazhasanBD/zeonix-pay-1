@@ -11,7 +11,7 @@ interface CustomLayoutProps {
   children: ReactNode;
 }
 
-const CustomLayout = ({ children, role }: { children: ReactNode, role?: 'admin' | 'user' | 'staff' })  => {
+const CustomLayout = ({ children, role }: { children: ReactNode, role?: 'admin' | 'merchant' | 'staff' })  => {
 
   const [collapsed, setCollapsed] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < 1024 : false

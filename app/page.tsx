@@ -1,26 +1,21 @@
-"use client";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "./lib/authOptions";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+export default async function HomePage() {
+  const session = await getServerSession(authOptions);
 
-const HomePage = () => {
-  const router = useRouter();
+  if (!session) {
+    redirect("/login");
+  }
 
-  useEffect(() => {
-    const role: string = "admin";
-
-    if (role === "admin") {
-      router.push("/admin/dashboard");  
-    } else if (role === "staff") {
-      router.push("/staff/dashboard");
-    } else if (role === "user") {
-      router.push("/user/dashboard"); 
-    } else {
-      router.push("/login"); 
-    }
-  }, [router]);
-
-  return <div>Loading...</div>; 
-};
-
-export default HomePage;
+  // Optional role-based redirect from "/"
+  switch (session.user.role) {
+    case "admin":
+      redirect("/admin/dashboard");
+    case "staff":
+      redirect("/staff/dashboard");
+    default:
+      redirect("/merchant//dashboard");
+  }
+}

@@ -51,12 +51,12 @@ import Image from "next/image";
 type SideNavProps = {
   collapsed: boolean;
   toggleSidebar: () => void;
-  role?: 'admin' | 'user' | 'staff';
+  role?: 'admin' | 'merchant' | 'staff';
 };
 
 
 
-export async function SideNav({ role, collapsed, toggleSidebar }: SideNavProps) {
+export function SideNav({ role, collapsed, toggleSidebar }: SideNavProps) {
   const pathname = usePathname();
   const [activeSubItem, setActiveSubItem] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -77,16 +77,7 @@ export async function SideNav({ role, collapsed, toggleSidebar }: SideNavProps) 
         { href: "/admin/staff-list", icon: UserCog, label: "Staff List" },
         { href: "/admin/deposit", icon: ArrowRightLeft, label: "Deposit" },
         { href: "/admin/payout", icon: Send, label: "Payout" },
-        {
-          href: "/admin/payment-withdrawal",
-          icon: Landmark,
-          label: "Payment Withdrawal",
-          subItems: [
-            { href: "/admin/payment-withdrawal/request", label: "Request Withdrawal" },
-            { href: "/admin/payment-withdrawal/report", label: "Withdrawal Report" },
-            { href: "/admin/payment-withdrawal/methods", label: "Payment Methods" },
-          ],
-        },
+        { href: "/admin/payment-withdrawal",icon: Landmark, label: "Payment Withdrawal"},
         { href: "/admin/settings", icon: Settings, label: "Settings" },
       ];
     } else if (role === "staff") {
@@ -105,21 +96,22 @@ export async function SideNav({ role, collapsed, toggleSidebar }: SideNavProps) 
         },
         { href: "/staff/settings", icon: Settings, label: "Settings" },
       ];
-    } else if (role === "user") {
+    } else if (role === "merchant") {
       return [
-        { href: "/user/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-        { href: "/user/deposit", icon: ArrowRightLeft, label: "Deposit" },
+        { href: "/merchant/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+        { href: "/merchant/deposit", icon: ArrowRightLeft, label: "Deposit" },
+        { href: "/merchant/payout", icon: Send, label: "Payout" },
         {
-          href: "/user/payment-withdrawal",
+          href: "/merchant/payment-withdrawal",
           icon: Landmark,
           label: "Payment Withdrawal",
           subItems: [
-            { href: "/user/payment-withdrawal/request", label: "Request Withdrawal" },
-            { href: "/user/payment-withdrawal/report", label: "Withdrawal Report" },
-            { href: "/user/payment-withdrawal/methods", label: "Payment Methods" },
+            { href: "/merchant/payment-withdrawal/request", label: "Request Withdrawal" },
+            { href: "/merchant/payment-withdrawal/report", label: "Withdrawal Report" },
+            { href: "/merchant/payment-withdrawal/methods", label: "Payment Methods" },
           ],
         },
-        { href: "/user/settings", icon: Settings, label: "Settings" },
+        { href: "/merchant/settings", icon: Settings, label: "Settings" },
       ];
     }
     return []; // In case no role is found

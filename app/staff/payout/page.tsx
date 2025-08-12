@@ -38,8 +38,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, ArrowUpDown } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { ChevronDown } from "lucide-react"
 import { DataTableFacetedFilter } from "@/app/components/data-table-faceted-filter"
 import { columns } from "@/app/components/transferColums";
 

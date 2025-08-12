@@ -1,4 +1,3 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
@@ -14,7 +13,10 @@ console.log("token kkkkkkkkkkkkkk: ",role);
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (pathname.startsWith('/user') && role !== 'user') {
+  if (pathname.startsWith('/merchant') && role !== 'merchant') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  if (pathname.startsWith('/staff') && role !== 'staff') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

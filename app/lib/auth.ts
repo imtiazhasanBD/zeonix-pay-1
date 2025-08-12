@@ -8,26 +8,26 @@ declare module 'next-auth' {
     user: {
       name: string;
       email: string;
-      role: 'admin' | 'user';
+      role: 'admin' | 'merchant' | 'staff';
     };
     accessToken: string;
   }
 
   interface User {
-    role: 'admin' | 'user';
+    role: 'admin' | 'merchant' | 'staff';
     token: string;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    role: 'admin' | 'user';
+    role: 'admin' | 'merchant' | 'staff';
     accessToken: string;
   }
 }
 
 
-export async function getUserRole(): Promise<'admin' | 'user' | 'staff' | null> {
+export async function getUserRole(): Promise<'admin' | 'merchant' | 'staff' | null> {
   const session = await getServerSession(authOptions);
   console.log("session", session)
   return session?.user?.role ?? null;

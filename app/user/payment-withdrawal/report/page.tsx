@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -38,8 +37,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, ArrowUpDown } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { ChevronDown } from "lucide-react"
 import { columns } from "@/app/components/reportColumns"
 import { DataTableFacetedFilter } from "@/app/components/data-table-faceted-filter"
 
