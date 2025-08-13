@@ -28,12 +28,21 @@ import { signOut } from "next-auth/react";
 type SideNavProps = {
   collapsed: boolean;
   toggleSidebar: () => void;
+  role?: 'admin' | 'merchant' | 'staff';
 };
 
-export function Header({ collapsed, toggleSidebar }: SideNavProps) {
+export function Header({ role, collapsed, toggleSidebar }: SideNavProps) {
   const pathname = usePathname();
   const pageTitle =
     pathname.split("/").pop()?.replace(/-/g, " ") || "Dashboard";
+
+  const handleLogout = () => {
+    const redirectMap: Record<string, string> = {
+      admin: '/login/admin',
+      merchant: '/login/merchant',
+    };
+    signOut({ callbackUrl: redirectMap[role || 'merchant'] });
+  };
 
   return (
     <header className={`flex h-14 items-center justify-between gap-4 border-b bg-card px-4 lg:h-[70px] lg:px-6 sticky top-0 z-10 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'} transition-all duration-300 ease-in-out`} >
@@ -101,7 +110,7 @@ export function Header({ collapsed, toggleSidebar }: SideNavProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

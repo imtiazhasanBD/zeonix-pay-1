@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowUpDown, Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { format, parse } from "date-fns"
 
 
 
@@ -61,7 +62,7 @@ export const columns: ColumnDef<Transaction>[] = [
         },
         cell: ({ row }) => <div>{row.getValue("ipAddress")}</div>,
     },
-        {
+    {
         accessorKey: "paymentMethod",
         header: ({ column }) => {
             return (
@@ -103,6 +104,7 @@ export const columns: ColumnDef<Transaction>[] = [
             )
         },
     },
+
     {
         accessorKey: "amount",
         header: ({ column }) => {
@@ -158,17 +160,23 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     {
         accessorKey: "dateTime",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Date & Time
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        header: ({ column }) => (
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                Date & Time
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        // Accepts an array of Date objects as the filter value
+        filterFn: (row, _id, filterDates: Date[] | undefined) => {
+            if (!filterDates || filterDates.length === 0) return true
+            const raw = row.getValue<string>("dateTime")
+            // Your data looks like "2023-06-23 10:30 AM"
+            const rowDate = parse(raw, "yyyy-MM-dd hh:mm a", new Date())
+            const rowKey = format(rowDate, "yyyy-MM-dd")
+            console.log(rowKey);
+            
+            return filterDates.some(d => format(d, "yyyy-MM-dd") === rowKey)
+        }
     },
     {
         accessorKey: "status",
@@ -192,55 +200,56 @@ export const columns: ColumnDef<Transaction>[] = [
             return value.includes(row.getValue(id))
         },
     },
-...(isAdmin
-    ? [
-        {
-            accessorKey: "actions",
-            header: () => (
-                <div className="text-right font-semibold">Actions</div>
-            ),
-            cell: ({ row }: { row: Row<Transaction> }) => {
-                const rowData = row.original;
+    ...(isAdmin
+        ? [
+            {
+                accessorKey: "actions",
+                header: () => (
+                    <div className="text-right font-semibold">Actions</div>
+                ),
+                cell: ({ row }: { row: Row<Transaction> }) => {
+                    const rowData = row.original;
 
-                return (
-                    <div className="text-right">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <MoreHorizontal className="w-5 h-5" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={() => console.log("View", rowData)}
-                                    className="cursor-pointer"
-                                >
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    View
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => console.log("Edit", rowData)}
-                                    className="cursor-pointer"
-                                >
-                                    <Pencil className="w-4 h-4 mr-2" />
-                                    Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => console.log("Delete", rowData)}
-                                    className="text-red-600 cursor-pointer"
-                                >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                );
-            },
-        }
-    ]
-    : []
-)
+                    return (
+                        <div className="text-right">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                        <MoreHorizontal className="w-5 h-5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => console.log("View", rowData)}
+                                        className="cursor-pointer"
+                                    >
+                                        <Eye className="w-4 h-4 mr-2" />
+                                        View
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => console.log("Edit", rowData)}
+                                        className="cursor-pointer"
+                                    >
+                                        <Pencil className="w-4 h-4 mr-2" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => console.log("Delete", rowData)}
+                                        className="text-red-600 cursor-pointer"
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    );
+                },
+            }
+        ]
+        : []
+    )
+
 ]

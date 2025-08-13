@@ -39,7 +39,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown } from "lucide-react"
 import { DataTableFacetedFilter } from "@/app/components/data-table-faceted-filter"
-import {columns} from "@/app/components/columns";
+import { columns } from "@/app/components/columns";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from "lucide-react"
+import { format, parse } from "date-fns"
+
 
 type Transaction = {
   storeId: string;
@@ -167,10 +172,10 @@ const transactions: Transaction[] = [
 
 
 const statuses = [
-    { value: "success", label: "Success" },
-    { value: "pending", label: "Pending" },
-    { value: "failed", label: "Failed" },
-    { value: "processing", label: "Processing" },
+  { value: "success", label: "Success" },
+  { value: "pending", label: "Pending" },
+  { value: "failed", label: "Failed" },
+  { value: "processing", label: "Processing" },
 ]
 
 export default function Page() {
@@ -178,6 +183,10 @@ export default function Page() {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [globalFilter, setGlobalFilter] = React.useState<string>("")
+  const [selectedDates, setSelectedDates] = React.useState<Date[] | undefined>(undefined)
+
+
 
   const table = useReactTable({
     data,
@@ -191,12 +200,24 @@ export default function Page() {
     onColumnVisibilityChange: setColumnVisibility,
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
+    state: { sorting, columnFilters, columnVisibility, globalFilter },
+    globalFilterFn: (row, _columnId, filterValue: string) => {
+      if (!filterValue) return true
+      const q = String(filterValue).toLowerCase().trim()
+      const { transactionId, storeId, ipAddress } = row.original as Transaction
+      return (
+        transactionId?.toLowerCase().includes(q) ||
+        storeId?.toLowerCase().includes(q) ||
+        ipAddress?.toLowerCase().includes(q)
+      )
     },
   })
+
+
+
+  React.useEffect(() => {
+    table.getColumn("dateTime")?.setFilterValue(selectedDates && selectedDates.length ? selectedDates : undefined)
+  }, [selectedDates, table])
 
   return (
     <Card>
@@ -208,120 +229,152 @@ export default function Page() {
       </CardHeader>
       <CardContent>
         <div className="w-full">
-            <div className="flex items-center py-4 gap-2">
-                <Input
-                placeholder="Filter by transactionId..."
-                value={(table.getColumn("transactionId")?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>
-                    table.getColumn("transactionId")?.setFilterValue(event.target.value)
-                }
-                className="max-w-sm"
+          <div className="flex items-center py-4 gap-2 flex-wrap">
+            {/* Single box for Transaction ID, Store ID, IP Address */}
+            <Input
+              placeholder="Search transactionId, storeId, or IP address..."
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="max-w-sm"
+            />
+
+            {/* Status faceted filter (unchanged) */}
+            {table.getColumn("status") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("status")}
+                title="Status"
+                options={statuses}
+              />
+            )}
+
+            {/* Pick a date (multiple) */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  Pick a date
+                  {selectedDates?.length ? (
+                    <span className="ml-2 text-xs opacity-70">
+                      {selectedDates.length} selected
+                    </span>
+                  ) : null}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0" align="start">
+                <Calendar
+                  mode="multiple"
+                  selected={selectedDates}
+                  onSelect={setSelectedDates}
+                  // optional: show outside days etc.
+                  initialFocus
                 />
-                 {table.getColumn("status") && (
-                    <DataTableFacetedFilter
-                        column={table.getColumn("status")}
-                        title="Status"
-                        options={statuses}
-                    />
-                )}
-                <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="ml-auto">
-                    Columns <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => {
-                        return (
-                        <DropdownMenuCheckboxItem
-                            key={column.id}
-                            className="capitalize"
-                            checked={column.getIsVisible()}
-                            onCheckedChange={(value) =>
-                            column.toggleVisibility(!!value)
-                            }
-                        >
-                            {column.id}
-                        </DropdownMenuCheckboxItem>
-                        )
-                    })}
-                </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-            <div className="rounded-md border overflow-hidden">
-                <Table className="">
-                <TableHeader className="bg-customViolet hover:bg-customViolet text-white">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                        {headerGroup.headers.map((header) => {
-                        return (
-                            <TableHead key={header.id} className="text-white hover:bg-transparent">
-                            {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                )}
-                            </TableHead>
-                        )
-                        })}
-                    </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                        <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                        >
-                        {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                            {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                            )}
-                            </TableCell>
-                        ))}
-                        </TableRow>
-                    ))
-                    ) : (
-                    <TableRow>
-                        <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                        >
-                        No results.
-                        </TableCell>
-                    </TableRow>
-                    )}
-                </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="space-x-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
+                <div className="flex items-center justify-end gap-2 p-2 border-t">
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedDates(undefined)}>
+                    Clear
+                  </Button>
+                  <Button size="sm" onClick={() => { /* popover closes via click outside; nothing needed */ }}>
+                    Done
+                  </Button>
                 </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Columns menu (unchanged) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="rounded-md border overflow-hidden">
+            <Table className="">
+              <TableHeader className="bg-customViolet hover:bg-customViolet text-white">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id} className="text-white hover:bg-transparent">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                        </TableHead>
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
             </div>
-            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
 

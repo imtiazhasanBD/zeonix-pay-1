@@ -14,66 +14,80 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DollarSign,
-  HandCoins,
-  Wallet,
-  PiggyBank,
-} from "lucide-react";
+import { DollarSign, HandCoins, Wallet, PiggyBank } from "lucide-react";
 import { StatCard } from "@/app/components/StatCard";
+import { getWalletTransactions } from "@/app/lib/wallet";
+
+// ---- Helpers ----
+type ApiTransaction = {
+  id: number;
+  object_id: number;
+  amount: string;            // "50.00"
+  method: string;            // "bkash"
+  status: "success" | "pending" | "failed" | string;
+  created_at: string;        // ISO e.g. "2025-08-13T10:24:05.866102Z"
+  trx_id: string;            // "CHD10N90H7"
+  trx_uuid: string;
+  tran_type: "credit" | "debit" | string;
+  wallet: number;
+  merchant: number;
+  content_type: number;
+};
+
+const TZ = "Asia/Dhaka";
+const CURRENCY = "USD"; // change to "BDT" if you prefer Taka
+
+function formatAmount(raw: string | number) {
+  const n = typeof raw === "string" ? parseFloat(raw) : raw;
+  if (Number.isNaN(n)) return String(raw ?? "");
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: CURRENCY,
+      maximumFractionDigits: 2,
+    }).format(n);
+  } catch {
+    return Number(n).toFixed(2);
+  }
+}
+
+function formatDate(iso: string) {
+  try {
+    const d = new Date(iso);
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: TZ,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(d);
+  } catch {
+    return iso;
+  }
+}
 
 
+// Define the expected API response type
+type WalletTransactionsResponse = {
+  status: boolean;
+  count: number;
+  data: [];
+};
 
 
-const transactions = [
-  {
-    name: "Liam Johnson",
-    email: "liam@example.com",
-    transactionId: "TXN12345",
-    amount: "$250.00",
-    paymentMethod: "Credit Card",
-    date: "2023-06-23",
-    status: "Paid",
-  },
-  {
-    name: "Olivia Smith",
-    email: "olivia@example.com",
-    transactionId: "TXN12346",
-    amount: "$150.00",
-    paymentMethod: "PayPal",
-    date: "2023-06-24",
-    status: "Paid",
-  },
-  {
-    name: "Noah Williams",
-    email: "noah@example.com",
-    transactionId: "TXN12347",
-    amount: "$350.00",
-    paymentMethod: "Bank Transfer",
-    date: "2023-06-25",
-    status: "Pending",
-  },
-  {
-    name: "Emma Brown",
-    email: "emma@example.com",
-    transactionId: "TXN12348",
-    amount: "$450.00",
-    paymentMethod: "Credit Card",
-    date: "2023-06-26",
-    status: "Paid",
-  },
-  {
-    name: "James Jones",
-    email: "james@example.com",
-    transactionId: "TXN12349",
-    amount: "$550.00",
-    paymentMethod: "Stripe",
-    date: "2023-06-27",
-    status: "Failed",
-  },
-];
+function statusClasses(status: string) {
+  const s = status.toLowerCase();
+  if (s === "success" || s === "paid") return "bg-green-600 text-white";
+  if (s === "pending" || s === "processing") return "bg-yellow-500 text-white";
+  return "bg-red-600 text-white"; // failed/others
+}
 
-export default function page() {
+export default async function page() {
+  const resp = await getWalletTransactions() as WalletTransactionsResponse;
+  const rows: ApiTransaction[] = Array.isArray(resp?.data) ? resp.data : [];
+console.log(resp);
+
   return (
     <div className="grid gap-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -88,7 +102,6 @@ export default function page() {
           iconBg="bg-cyan-500"
           iconColor="text-white"
         />
-
         <StatCard
           title="Pending Withdrawals"
           amount="$35,000"
@@ -100,7 +113,6 @@ export default function page() {
           iconBg="bg-orange-500"
           iconColor="text-white"
         />
-
         <StatCard
           title="Failed Withdrawals"
           amount="$50,000"
@@ -112,7 +124,6 @@ export default function page() {
           iconBg="bg-purple-500"
           iconColor="text-white"
         />
-
         <StatCard
           title="Total Saving"
           amount="$50,000"
@@ -125,7 +136,8 @@ export default function page() {
           iconColor="text-white"
         />
       </div>
-      <div className="">
+
+      <div>
         <Card className="overflow-x-auto">
           <CardHeader>
             <CardTitle className="font-headline">Recent Transactions</CardTitle>
@@ -133,66 +145,56 @@ export default function page() {
               A list of recent transactions from your store.
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             <div className="rounded-xl border bg-white shadow-md overflow-x-auto">
               <Table className="min-w-full text-sm">
                 <TableHeader className="bg-gray-100 sticky top-0 z-10">
-                  <TableRow className="py-20">
-                    <TableHead>User</TableHead>
-                    <TableHead className="hidden sm:table-cell">Email</TableHead>
-                    <TableHead className="hidden md:table-cell">Transaction ID</TableHead>
-                    <TableHead className="hidden md:table-cell">Payment Method</TableHead>
+                  <TableRow>
+                    <TableHead className="hidden md:table-cell">ID</TableHead>
+                    <TableHead>Transaction ID</TableHead>
+                    <TableHead className="hidden sm:table-cell">Method</TableHead>
+                    <TableHead className="hidden md:table-cell">Type</TableHead>
                     <TableHead className="hidden sm:table-cell">Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
-                  {transactions.map((transaction, idx) => (
-                    <TableRow
-                      key={transaction.transactionId}
-                      className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}
-                    >
-                      <TableCell>
-                        <div className="font-medium py-2">{transaction.name}</div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {transaction.email}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {transaction.transactionId}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {transaction.paymentMethod}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {transaction.date}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            transaction.status === "Paid"
-                              ? "bg-green-600 text-white"
-                              : transaction.status === "Pending"
-                                ? "bg-yellow-500 text-white"
-                                : "bg-red-600 text-white"
-                          }
-                        >
-                          {transaction.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right font-semibold">
-                        {transaction.amount}
+                  {rows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-10">
+                        No transactions found.
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    rows.map((t, idx) => (
+                      <TableRow
+                        key={`${t.trx_uuid}-${idx}`}
+                        className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}
+                      >
+                        <TableCell className="hidden md:table-cell">{t.id}</TableCell>
+                        <TableCell className="font-medium">{t.trx_id}</TableCell>
+                        <TableCell className="hidden sm:table-cell capitalize">{t.method}</TableCell>
+                        <TableCell className="hidden md:table-cell capitalize">{t.tran_type}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{formatDate(t.created_at)}</TableCell>
+                        <TableCell>
+                          <Badge className={statusClasses(t.status)}>
+                            {t.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {formatAmount(t.amount)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
-
           </CardContent>
         </Card>
-
       </div>
     </div>
   );

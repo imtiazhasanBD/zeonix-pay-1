@@ -5,9 +5,10 @@ import { ReactNode } from "react";
 
 export default function WithOutLayout({ children, role }: { children: ReactNode, role?: 'admin' | 'merchant' | 'staff' }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === '/login';
+  const isLoginPage = pathname.startsWith('/login');
+  const isHonePage = pathname === ('/');
 
   
 
-  return isLoginPage ? children : <CustomLayout role={role}>{children}</CustomLayout>;
+  return isLoginPage || isHonePage? children : <CustomLayout role={role}>{children}</CustomLayout>;
 }
