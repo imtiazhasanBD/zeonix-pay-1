@@ -17,17 +17,16 @@ import { ArrowUpDown, Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 
 
 type Transaction = {
-  storeId: string;
-  paymentMethod: string;
-  number: string;
-  transactionId: string;
-  last4: string;
-  previousBalance: number;
-  amount: number;
-  currentBalance: number;
-  status: "success" | "pending" | "failed";
-  dateTime: string;
-  comments: string;
+    id: number;
+    amount: string;
+    status: string;           // e.g. "success" | "pending" | "rejected"
+    message: string;          // e.g. "Done"
+    trx_id: string;
+    trx_uuid: string;
+    created_at: string;
+    updated_at: string;
+    merchant: number;
+    payment_method: number;
 };
 
 
@@ -64,7 +63,7 @@ export const columns: ColumnDef<Transaction>[] = [
         },
         cell: ({ row }) => <div>{row.getValue("paymentMethod")}</div>,
     },
-        {
+    {
         accessorKey: "number",
         header: ({ column }) => {
             return (

@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "./authOptions";
+import { authOptions } from "../../authOptions";
+
 
 // --- Types ---
 export type ApiTransaction = {
@@ -36,7 +37,7 @@ function isWalletTransactionsResponse(x: unknown): x is WalletTransactionsRespon
 }
 
 export async function getWalletTransactions(): Promise<WalletTransactionsResponse> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://192.168.68.135:8000/api/v1";
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://192.168.68.124:8000/api/v1";
   const session = await getServerSession(authOptions);
   const token = (session as any)?.accessToken?.access;
 

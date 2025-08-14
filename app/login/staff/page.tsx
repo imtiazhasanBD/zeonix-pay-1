@@ -14,7 +14,7 @@ const LoginPage = () => {
     const result = await signIn('credentials', {
       username,
       password,
-      role: "admin",
+      role: "staff",
       redirect: false,
     });
 
@@ -24,7 +24,8 @@ const LoginPage = () => {
 
     } else {
       toast.success("Login successfull")
-      window.location.href = '/admin/dashboard';
+      console.log('Login successful!');
+      window.location.href = '/staff/dashboard';
     }
   };
 

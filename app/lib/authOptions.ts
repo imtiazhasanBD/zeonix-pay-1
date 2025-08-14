@@ -42,14 +42,14 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials): Promise<any> {
         console.log(credentials);
-        
+
         if (!credentials) return null;
 
         // Map role to correct API URL
         const endpointMap: Record<string, string> = {
-          merchant: 'http://192.168.68.134:8000/api/v1/auth/merchant/login/',
-          admin: 'http://192.168.68.134:8000/api/v1/auth/admin/login/',
-          staff: 'http://192.168.68.134:8000/api/v1/auth/staff/login/',
+          merchant: 'http://192.168.68.124:8000/api/v1/auth/merchant/login/',
+          admin: 'http://192.168.68.124:8000/api/v1/auth/admin/login/',
+          staff: 'http://192.168.68.124:8000/api/v1/auth/staff/login/',
         };
 
         const apiUrl = endpointMap[credentials.role as string];
@@ -65,17 +65,24 @@ export const authOptions: NextAuthOptions = {
             }),
           });
 
-          if (!res.ok) return null;
+          if (!res.ok) {
+            let apiErr = { message: 'Login failed' };
+            try { apiErr = await res.json(); } catch { }
+            throw new Error(apiErr.message);
+          }
+
 
           const user: APIUser = await res.json();
-console.log('User dataaaaaa:', user);
+          console.log('User dataaaaaa:', user);
           return {
             ...user,
             role: credentials.role as 'admin' | 'merchant' | 'staff',
           } as any;
         } catch (error) {
-          console.error('Login error:', error);
-          return null;
+          if (error instanceof Error && error.message) {
+            throw new Error(error.message);
+          }
+          throw new Error(JSON.stringify({ status: false, message: 'Network error' }));
         }
       },
     }),

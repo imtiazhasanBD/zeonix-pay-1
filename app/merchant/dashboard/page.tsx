@@ -16,7 +16,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, HandCoins, Wallet, PiggyBank } from "lucide-react";
 import { StatCard } from "@/app/components/StatCard";
-import { getWalletTransactions } from "@/app/lib/wallet";
+import { getWalletTransactions } from "@/app/lib/api/merchant/wallet";
+import { getWithdrawRequests } from "@/app/lib/api/merchant/withdraw-request";
+
+
 
 // ---- Helpers ----
 type ApiTransaction = {
@@ -86,7 +89,7 @@ function statusClasses(status: string) {
 export default async function page() {
   const resp = await getWalletTransactions() as WalletTransactionsResponse;
   const rows: ApiTransaction[] = Array.isArray(resp?.data) ? resp.data : [];
-console.log(resp);
+
 
   return (
     <div className="grid gap-6">

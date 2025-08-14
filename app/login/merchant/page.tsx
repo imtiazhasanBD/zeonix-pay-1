@@ -3,18 +3,30 @@
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    signIn('credentials', {
+  const handleLogin = async () => {
+    const result = await signIn('credentials', {
       username,
       password,
       role: "merchant",
-      callbackUrl: '/',
+      redirect: false,
     });
+
+    if (result?.error) {
+      console.log(result);
+      toast.error(result.error);
+
+    } else {
+      toast.success("Login successfull")
+      console.log('Login successful!');
+      window.location.href = '/merchant/dashboard';
+    }
   };
 
   return (

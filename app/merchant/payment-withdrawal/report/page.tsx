@@ -1,4 +1,4 @@
-"use client"
+/* "use client"
 
 import * as React from "react"
 import {
@@ -324,6 +324,39 @@ export default function Page() {
                 </div>
             </div>
             </div>
+      </CardContent>
+    </Card>
+  )
+}
+ */
+
+import * as React from "react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { getWithdrawRequests } from "@/app/lib/api/merchant/withdraw-request";
+import Report from "@/app/components/merchant/withdraw-request/report";
+
+
+export default async function Page() {
+
+   const res = await getWithdrawRequests()
+console.log(res);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-headline">Recent Transactions</CardTitle>
+        <CardDescription>
+          A list of recent transactions.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Report dataa={res}/>
       </CardContent>
     </Card>
   )

@@ -3,6 +3,10 @@ import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import WithOutLayout from "./components/WithOutLayout";
 import { getUserRole } from "./lib/auth";
+import { Toaster } from "react-hot-toast";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./lib/authOptions";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,12 +18,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-    // app/layout.js or pages/_app.js
-    const roboto = Roboto({
-      weight: ['400', '700'], // Specify desired weights, e.g., regular and bold
-      subsets: ['latin'], // Specify character subsets for smaller file size
-      display: 'swap', // Ensures text is visible while the font loads
-    });
+// app/layout.js or pages/_app.js
+const roboto = Roboto({
+  weight: ['400', '700'], // Specify desired weights, e.g., regular and bold
+  subsets: ['latin'], // Specify character subsets for smaller file size
+  display: 'swap', // Ensures text is visible while the font loads
+});
 
 
 export const metadata: Metadata = {
@@ -31,17 +35,18 @@ export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) 
-
-{
+}>) {
   const role = await getUserRole();
+  const session = await getServerSession(authOptions);
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-
+      >  <Providers session={session}>
         <WithOutLayout role={role ?? undefined}> {children}</WithOutLayout>
+        <Toaster position="bottom-right" />
+        </Providers>
+
       </body>
     </html>
   );

@@ -10,14 +10,14 @@ console.log("token kkkkkkkkkkkkkk: ",role);
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith('/admin') && role !== 'admin') {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login/admin', request.url));
   }
 
   if (pathname.startsWith('/merchant') && role !== 'merchant') {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login/merchant', request.url));
   }
   if (pathname.startsWith('/staff') && role !== 'staff') {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login/staff', request.url));
   }
 
   return NextResponse.next();
