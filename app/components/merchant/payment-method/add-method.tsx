@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -34,7 +33,8 @@ import { Landmark, Smartphone, Coins } from "lucide-react";
 import { MdOutlinePayment } from "react-icons/md";
 import clsx from "clsx";
 import PaymentMethodsList from "./list";
-import { getPaymentMethodList } from "@/app/lib/api/merchant/payment-method";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 type Method = "bank" | "mobileBanking" | "crypto";
 
@@ -74,7 +74,7 @@ type PaymentMethod = {
     account_name: string;
     account_number: string;
   };
-  status: string;       // "active" | "inactive" | "pending" | ...
+  status: string;
   is_primary: boolean;
   created_at: string;
   updated_at: string;
@@ -83,7 +83,7 @@ type PaymentMethod = {
 
 const STORAGE_KEY = "paymentMethods";
 
-// ---------- helpers for logos/icons ----------
+// ----------  for logos/icons ----------
 const methodIconMap: Record<Method, React.ComponentType<{ className?: string }>> = {
   bank: Landmark,
   mobileBanking: Smartphone,
@@ -134,18 +134,7 @@ function ProviderLogo({
 }
 
 const AddMethod = ({ data }: { data: PaymentMethod[] }) => {
-  const [methods, setMethods] = useState<PaymentMethodItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
-
   const [open, setOpen] = useState(false);
-
   const [method, setMethod] = useState<Method>("bank");
   const [makePrimary, setMakePrimary] = useState<boolean>(false);
   // Bank
@@ -161,11 +150,9 @@ const AddMethod = ({ data }: { data: PaymentMethod[] }) => {
   const [cryptoMethod, setCryptoMethod] = useState<string | undefined>();
   const [cryptoId, setCryptoId] = useState("");
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(methods));
-    } catch {}
-  }, [methods]);
+  const router = useRouter();
+
+
 
   useEffect(() => {
     setMakePrimary(false);
@@ -180,13 +167,6 @@ const AddMethod = ({ data }: { data: PaymentMethod[] }) => {
     setCryptoId("");
   }, [method]);
 
-  const idSafe = useMemo(
-    () =>
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? (crypto.randomUUID as () => string)()
-        : String(Date.now()),
-    [open]
-  );
 
   const detailsPreview = useMemo(() => {
     if (method === "bank") {
@@ -207,30 +187,58 @@ const AddMethod = ({ data }: { data: PaymentMethod[] }) => {
     return "Crypto";
   }, [method, bankName, accountNumber, mobileProvider, phoneNumber, cryptoMethod, cryptoId]);
 
-  const onSubmit = (e: React.FormEvent) => {
+
+  // create payment method...
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newItem: PaymentMethodItem = {
-      id: idSafe,
-      method,
-      details: detailsPreview,
-      isPrimary: makePrimary || methods.length === 0,
-      meta:
+    // map UI -> API payload
+    const method_type =
+      method === "bank"
+        ? "bank"
+        : method === "mobileBanking"
+          ? (mobileProvider as "bkash" | "nagad" | "rocket" | "upay")
+          : "crypto";
+
+    const params = {
+      account_name:
         method === "bank"
-          ? { holderName, accountNumber, bankName, branchName }
+          ? holderName
           : method === "mobileBanking"
-          ? { mobileProvider, accountType, phoneNumber }
-          : { cryptoMethod, cryptoId },
+            ? holderName || accountType
+            : holderName || "Crypto",
+      account_number:
+        method === "bank"
+          ? accountNumber
+          : method === "mobileBanking"
+            ? phoneNumber
+            : cryptoId,
     };
 
-    setMethods((prev) => {
-      const normalized =
-        makePrimary || prev.length === 0
-          ? prev.map((m) => ({ ...m, isPrimary: false }))
-          : prev;
-      return [newItem, ...normalized];
-    });
+    await toast.promise(
+      (async () => {
+        const res = await fetch("/api/merchant/payment-methods", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ method_type, params, status: "active" }),
+        });
 
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          throw new Error(data?.message ?? "Could not create method.");
+        }
+
+        return data?.message ?? "Method created!";
+      })(),
+      {
+        loading: "Creating method...",
+        success: (msg) => <b>{msg}</b>,
+        error: (err) => <b>{err.message}</b>,
+      }
+    );
+
+    router.refresh();
     setOpen(false);
   };
 
@@ -239,7 +247,7 @@ const AddMethod = ({ data }: { data: PaymentMethod[] }) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
-          <MdOutlinePayment size={30} className="text-muted-foreground"/>
+          <MdOutlinePayment size={30} className="text-muted-foreground" />
           <div>
             <CardTitle className="font-headline">Payment Methods</CardTitle>
             <CardDescription>Manage your connected bank accounts and cards.</CardDescription>
@@ -456,8 +464,8 @@ const AddMethod = ({ data }: { data: PaymentMethod[] }) => {
                       method === "bank"
                         ? { holderName, accountNumber, bankName, branchName }
                         : method === "mobileBanking"
-                        ? { mobileProvider, accountType, phoneNumber }
-                        : { cryptoMethod, cryptoId }
+                          ? { mobileProvider, accountType, phoneNumber }
+                          : { cryptoMethod, cryptoId }
                     }
                   />
                   <span>
@@ -478,7 +486,7 @@ const AddMethod = ({ data }: { data: PaymentMethod[] }) => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-       <PaymentMethodsList data={data}/>
+      <PaymentMethodsList data={data} />
     </Card>
   );
 };

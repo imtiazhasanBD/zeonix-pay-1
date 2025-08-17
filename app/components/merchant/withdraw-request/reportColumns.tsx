@@ -77,7 +77,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     // snake_case -> readable label via accessorFn
-    accessorKey: "payment_method",
+    accessorKey: "paymentMethod",
     header: ({ column }) => (
       <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
         Payment Method
@@ -85,7 +85,7 @@ export const columns: ColumnDef<Transaction>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const id = row.getValue("payment_method") as number
+      const id = row.getValue("paymentMethod") as number
       return <div>{id}</div> // map to a label if you have a lookup
     },
   },

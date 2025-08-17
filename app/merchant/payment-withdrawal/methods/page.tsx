@@ -6,7 +6,7 @@ const page = async () => {
   const res = await getPaymentMethodList()
   console.log(res);
   return (
-     <AddMethod data={res}/>
+     <AddMethod data={res?.data}/>
   )
 }
 

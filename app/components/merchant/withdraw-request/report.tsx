@@ -53,6 +53,7 @@ export default function Report({ dataa }: { dataa: Transaction[] }) {
       columnVisibility,
     },
   })
+console.log(dataa);
 
   return (
     <div className="w-full">

@@ -358,7 +358,7 @@ console.log(res);
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <DepositTable data={res}/>
+        <DepositTable data={res?.data}/>
       </CardContent>
     </Card>
   )

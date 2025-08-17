@@ -7,8 +7,9 @@ export default function WithOutLayout({ children, role }: { children: ReactNode,
   const pathname = usePathname();
   const isLoginPage = pathname.startsWith('/login');
   const isHonePage = pathname === ('/');
+  const isServerDownPage = pathname === ('/server-down');
 
   
 
-  return isLoginPage || isHonePage? children : <CustomLayout role={role}>{children}</CustomLayout>;
+  return isLoginPage || isHonePage || isServerDownPage? children : <CustomLayout role={role}>{children}</CustomLayout>;
 }

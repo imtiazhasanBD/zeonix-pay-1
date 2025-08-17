@@ -356,7 +356,7 @@ console.log(res);
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Report dataa={res}/>
+        <Report dataa={res?.data}/>
       </CardContent>
     </Card>
   )
