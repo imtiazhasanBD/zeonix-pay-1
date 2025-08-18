@@ -76,7 +76,7 @@ const Page = () => {
   };
 
   // pick type
-  const [paymentMethod, setPaymentMethod] = useState<Method>(null);
+  const [paymentMethod, setPaymentMethod] = useState<Method>("mobileBanking");
 
   // saved methods
   const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[] | null>(null);

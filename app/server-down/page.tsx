@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function ServerDownPage() {
   const [checking, setChecking] = useState(false);
@@ -28,6 +29,7 @@ export default function ServerDownPage() {
   return (
     <div className="min-h-screen grid place-items-center">
       <div className="text-center space-y-4">
+        <Image className="mx-auto" src="/zeonix-logo.png" width={200} height={200} alt="zeonix-logo" />
         <h1 className="text-2xl font-semibold">Service temporarily unavailable</h1>
         <p className="text-muted-foreground">
           Our server is down or unreachable. We’ll retry periodically.

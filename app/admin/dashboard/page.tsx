@@ -6,59 +6,14 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/app/components/StatCard";
 import RecentTransaction from "@/app/components/RecentTransaction";
+import { getWalletTransactions } from "@/app/lib/api/merchant/wallet";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 
 
 
-const tableHeaders = ["Name", "Email", "Transaction ID", "Payment Method", "Date", "Status", "Amount"];
+const tableHeaders = ["ID", "Store Name", "Transaction ID", "Payment Method", "Type", "Date & Time", "Status", "Amount"];
 
-const transactions = [
-    {
-        name: "Liam Johnson",
-        email: "liam@example.com",
-        transactionId: "TXN12345",
-        amount: "$250.00",
-        paymentMethod: "Credit Card",
-        date: "2023-06-23",
-        status: "Paid",
-    },
-    {
-        name: "Olivia Smith",
-        email: "olivia@example.com",
-        transactionId: "TXN12346",
-        amount: "$150.00",
-        paymentMethod: "PayPal",
-        date: "2023-06-24",
-        status: "Paid",
-    },
-    {
-        name: "Noah Williams",
-        email: "noah@example.com",
-        transactionId: "TXN12347",
-        amount: "$350.00",
-        paymentMethod: "Bank Transfer",
-        date: "2023-06-25",
-        status: "Pending",
-    },
-    {
-        name: "Emma Brown",
-        email: "emma@example.com",
-        transactionId: "TXN12348",
-        amount: "$450.00",
-        paymentMethod: "Credit Card",
-        date: "2023-06-26",
-        status: "Paid",
-    },
-    {
-        name: "James Jones",
-        email: "james@example.com",
-        transactionId: "TXN12349",
-        amount: "$550.00",
-        paymentMethod: "Stripe",
-        date: "2023-06-27",
-        status: "Failed",
-    },
-];
 
 const cardData = {
     completedWithdrawals: "$50,000",
@@ -68,7 +23,11 @@ const cardData = {
 
 }
 
-export default function page() {
+export default async function page() {
+    const res = await getWalletTransactions();
+    console.log(res);
+
+
     return (
         <div className="grid gap-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -120,7 +79,15 @@ export default function page() {
                     iconColor="text-white"
                 />
             </div>
-            <RecentTransaction headers={tableHeaders} data={transactions} />
+            <Card className="overflow-x-auto">
+                <CardHeader>
+                    <CardTitle className="font-headline">Recent Transactions</CardTitle>
+                    <CardDescription>
+                        A list of recent transactions from your store.
+                    </CardDescription>
+                </CardHeader>
+                <RecentTransaction headers={tableHeaders} data={res?.data} />
+            </Card>
         </div>
     );
 }

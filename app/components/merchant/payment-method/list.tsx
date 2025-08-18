@@ -102,7 +102,7 @@ export default function PaymentMethodsList({ data }: { data: PaymentMethod[] }) 
         };
         toast.success(data?.message ?? "Status updated!");
         setMethods(prev => prev.map(pm =>
-            pm.id === id ? { ...pm, status: pm.status === "active" ? "inactive" : "active" } : pm
+            pm.id === id ? { ...pm, status: pm.status === "active" ? "deactive" : "active" } : pm
         ));
 
     };

@@ -10,7 +10,7 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +35,7 @@ export function Header({ role, collapsed, toggleSidebar }: SideNavProps) {
   const pathname = usePathname();
   const pageTitle =
     pathname.split("/").pop()?.replace(/-/g, " ") || "Dashboard";
+    const router = useRouter();
 
   const handleLogout = () => {
     const redirectMap: Record<string, string> = {
@@ -96,7 +97,7 @@ export function Header({ role, collapsed, toggleSidebar }: SideNavProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/merchant/profile")}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>

@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ChevronDown } from "lucide-react"
-import { depositColumns, type Deposit } from "@/app/components/merchant/deposit/depositColumns"
+import { payoutColumns, type Payout } from "@/app/components/payoutColumns"
 import { DataTableFacetedFilter } from "@/app/components/data-table-faceted-filter"
 
 const statusOptions = [
@@ -43,14 +43,15 @@ const methodOptions = [
   { value: "upay", label: "Upay" },
 ]
 
-export default function DepositTable({ data }: { data: Deposit[] }) {
+export default function PayoutTable({ data }: { data: Payout[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+console.log(data);
 
   const table = useReactTable({
     data,
-    columns: depositColumns,
+    columns: payoutColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -68,25 +69,25 @@ export default function DepositTable({ data }: { data: Deposit[] }) {
       <div className="flex items-center py-4 gap-2">
         <Input
           placeholder="Filter by transaction_id…"
-          value={(table.getColumn("transaction_id")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("trx_id")?.getFilterValue() as string) ?? ""}
           onChange={(e) => table.getColumn("transaction_id")?.setFilterValue(e.target.value)}
           className="max-w-sm"
         />
-        <Input
+    {/*     <Input
           placeholder="Filter by invoice_payment_id…"
           value={(table.getColumn("invoice_payment_id")?.getFilterValue() as string) ?? ""}
           onChange={(e) => table.getColumn("invoice_payment_id")?.setFilterValue(e.target.value)}
           className="max-w-sm"
-        />
+        /> */}
 
         {table.getColumn("status") && (
           <DataTableFacetedFilter column={table.getColumn("status")} title="Status" options={statusOptions} />
         )}
-        {table.getColumn("pay_status") && (
-          <DataTableFacetedFilter column={table.getColumn("pay_status")} title="Pay Status" options={payStatusOptions} />
+        {table.getColumn("status") && (
+          <DataTableFacetedFilter column={table.getColumn("status")} title="Pay Status" options={payStatusOptions} />
         )}
-        {table.getColumn("method") && (
-          <DataTableFacetedFilter column={table.getColumn("method")} title="Method" options={methodOptions} />
+        {table.getColumn("payment_method") && (
+          <DataTableFacetedFilter column={table.getColumn("payment_method")} title="Method" options={methodOptions} />
         )}
 
         <DropdownMenu>
@@ -115,7 +116,7 @@ export default function DepositTable({ data }: { data: Deposit[] }) {
 
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader className="bg-customViolet hover:bg-customViolet">
+          <TableHeader className="bg-customViolet hover:bg-customViolet text-white">
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id} className="hover:bg-customViolet">
                 {hg.headers.map((h) => (
@@ -137,7 +138,7 @@ export default function DepositTable({ data }: { data: Deposit[] }) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={depositColumns.length} className="h-24 text-center">
+                <TableCell colSpan={payoutColumns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

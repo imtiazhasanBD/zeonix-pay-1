@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs"; // ensure Node runtime for next-auth
 
 export async function POST(req: Request) {
-  const baseUrl = process.env.BASE_URL ?? "http://192.168.68.114:8000/api/v1";
+  const baseUrl = process.env.BASE_URL ?? "http://192.168.68.130:8000/api/v1";
   const session = await getServerSession(authOptions);
   const token = (session as any)?.accessToken?.access;
 
