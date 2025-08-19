@@ -8,6 +8,7 @@ import { StatCard } from "@/app/components/StatCard";
 import RecentTransaction from "@/app/components/RecentTransaction";
 import { getWalletTransactions } from "@/app/lib/api/merchant/wallet";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getOverview } from "@/app/lib/api/merchant/overview";
 
 
 
@@ -16,16 +17,17 @@ const tableHeaders = ["ID", "Store Name", "Transaction ID", "Payment Method", "T
 
 
 const cardData = {
-    completedWithdrawals: "$50,000",
-    pendingWithdrawals: "$35,000",
-    failedWithdrawals: "$5,000",
-    totalSaving: "$500,000",
+    completedWithdrawals: "50,000",
+    pendingWithdrawals: "35,000",
+    failedWithdrawals: "5,000",
+    totalSaving: "500,000",
 
 }
 
 export default async function page() {
     const res = await getWalletTransactions();
-    console.log(res);
+    const  {data} = await getOverview();
+    console.log(data);
 
 
     return (
@@ -33,7 +35,7 @@ export default async function page() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard
                     title="Completed Withdrawals"
-                    amount={cardData.completedWithdrawals}
+                    amount={data?.total_withdraw}
                     subtitle="Last month $24,000.00"
                     change="95%"
                     positive={true}
@@ -45,7 +47,7 @@ export default async function page() {
 
                 <StatCard
                     title="Pending Withdrawals"
-                    amount={cardData.pendingWithdrawals}
+                    amount={data?.withdraw_processing}
                     subtitle="Last month $1,600.00"
                     change="95%"
                     positive={true}
@@ -68,8 +70,8 @@ export default async function page() {
                 />
 
                 <StatCard
-                    title="Total Saving"
-                    amount={cardData.totalSaving}
+                    title="Total Balance"
+                    amount={data?.balance}
                     subtitle="Last month $2,500.00"
                     change="95%"
                     positive={true}

@@ -3,7 +3,7 @@ import { authOptions } from "../../authOptions";
 import { redirect } from "next/navigation";
 import { getAccessToken } from "../../getToken";
 
-export async function getDepositList() {
+export async function getOverview() {
   const baseUrl = process.env.BASE_URL;
   const session = await getServerSession(authOptions);
   const token = getAccessToken(session);
@@ -12,9 +12,9 @@ export async function getDepositList() {
 
   let res: Response;
   try {
-    res = await fetch(`${baseUrl}/u/invoice/invoices/`, {
+    res = await fetch(`${baseUrl}/u/wallet/wallet-overview/`, {
       headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
-      cache: 'force-cache',
+      cache: "no-store",
     });
   } catch (e) {
     // Network failure / server down

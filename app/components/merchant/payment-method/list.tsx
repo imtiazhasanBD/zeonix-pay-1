@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Landmark, Smartphone, Coins } from "lucide-react";
 import clsx from "clsx";
@@ -31,6 +29,14 @@ type ApiResponse = {
     status: boolean;
     count: number;
     data: PaymentMethod[];
+};
+
+const getMessage = (x: unknown): string | undefined => {
+  if (typeof x === "object" && x !== null) {
+    const m = (x as Record<string, unknown>).message;
+    if (typeof m === "string") return m;
+  }
+  return undefined;
 };
 
 // ---- helpers: icons & logos ----
@@ -110,14 +116,18 @@ export default function PaymentMethodsList({ data }: { data: PaymentMethod[] }) 
     // delete payment method
     const removeMethod = async (id: number) => {
         const res = await fetch(`/api/merchant/payment-methods/${id}`, { method: "DELETE" });
-        let data: any = null;
-        try { data = await res.json(); } catch { }
+
+        let data: unknown = null;
+        try { data = await res.json(); } catch { /* 204 or no body */ }
+
+        const msg = getMessage(data);
 
         if (!res.ok) {
-            toast.error(data?.message ?? "Could not delete method.");
+            toast.error(msg ?? "Could not delete method.");
             return;
         }
-        toast.success(data?.message ?? "Payment method removed.");
+
+        toast.success(msg ?? "Payment method removed.");
         setMethods(prev => prev.filter(pm => pm.id !== id));
     };
 

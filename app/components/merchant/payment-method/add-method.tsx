@@ -81,7 +81,7 @@ type PaymentMethod = {
   merchant: number;
 }
 
-const STORAGE_KEY = "paymentMethods";
+//const STORAGE_KEY = "paymentMethods";
 
 // ----------  for logos/icons ----------
 const methodIconMap: Record<Method, React.ComponentType<{ className?: string }>> = {

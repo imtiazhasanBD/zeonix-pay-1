@@ -23,7 +23,7 @@ type SavedPaymentMethod = {
     method: Exclude<Method, null>;
     details: string;           // masked display text
     isPrimary: boolean;
-    meta?: Record<string, any>;
+    meta?: Record<string, unknown>;
 };
 
 type PaymentMethod = {

@@ -1,4 +1,4 @@
-// lib/authOptions.ts
+/* 
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
@@ -105,5 +105,117 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
+  },
+};
+ */
+
+import { NextAuthOptions, type User } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+
+type LoginRole = "admin" | "merchant" | "staff";
+
+interface APIUser {
+  id: number;
+  username: string;
+  email?: string | null;
+  token: string;
+}
+
+// extra fields we attach to the NextAuth User at sign-in time
+type AuthUser = User & {
+  role: LoginRole;
+  token: string;
+};
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      name: string;
+      email: string;
+      role: LoginRole;
+    };
+    accessToken: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role: LoginRole;
+    accessToken: string;
+  }
+}
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
+        role: { label: "Role", type: "text" },
+      },
+      async authorize(
+        credentials,
+        _req
+      ): Promise<User | null> {
+        if (!credentials) return null;
+
+        const role = (credentials.role as LoginRole) ?? "merchant";
+        const endpointMap: Record<LoginRole, string> = {
+          merchant: "http://192.168.68.142:8000/api/v1/auth/merchant/login/",
+          admin: "http://192.168.68.142:8000/api/v1/auth/admin/login/",
+          staff: "http://192.168.68.142:8000/api/v1/auth/staff/login/",
+        };
+        const apiUrl = endpointMap[role];
+
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: credentials.username,
+            password: credentials.password,
+          }),
+        });
+
+        if (!res.ok) {
+          let apiErr: { message?: string } = { message: "Login failed" };
+          try { apiErr = await res.json(); } catch {}
+          throw new Error(apiErr.message ?? "Login failed");
+        }
+
+        const apiUser: APIUser = await res.json();
+
+        // Return a NextAuth User 
+        const user: AuthUser = {
+          id: String(apiUser.id),
+          name: apiUser.username,
+          email: apiUser.email ?? "",
+          role,
+          token: apiUser.token,
+        };
+
+        return user; // satisfies User
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        const u = user as AuthUser;
+        token.role = u.role;
+        token.accessToken = u.token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role as LoginRole;
+        session.accessToken = token.accessToken as string;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
   },
 };

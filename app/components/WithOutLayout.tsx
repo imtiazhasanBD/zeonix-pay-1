@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import CustomLayout from "./CustomLayout";
 import { ReactNode } from "react";
 
-export default function WithOutLayout({ children, role }: { children: ReactNode, role?: 'admin' | 'merchant' | 'staff' }) {
+export default function WithOutLayout({ children, role, balance }: { children: ReactNode, role?: 'admin' | 'merchant' | 'staff', balance:String }) {
   const pathname = usePathname();
   const isLoginPage = pathname.startsWith('/login');
   const isHonePage = pathname === ('/');
@@ -12,5 +12,5 @@ export default function WithOutLayout({ children, role }: { children: ReactNode,
 
   
 
-  return isLoginPage || isHonePage || isServerDownPage || isPaymentPage? children : <CustomLayout role={role}>{children}</CustomLayout>;
+  return isLoginPage || isHonePage || isServerDownPage || isPaymentPage? children : <CustomLayout role={role} balance={balance}>{children}</CustomLayout>;
 }

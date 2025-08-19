@@ -62,7 +62,7 @@ export const columns: ColumnDef<Transaction>[] = [
       const formatted = isFinite(amount)
         ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'BDT' }).format(amount)
         : row.getValue("amount")
-      return <div className="text-left font-medium">{formatted as any}</div>
+      return <div className="text-left font-medium">{formatted as string}</div>
     },
   },
 
@@ -133,7 +133,7 @@ export const columns: ColumnDef<Transaction>[] = [
           : status === "pending" || status === "processing"
             ? "secondary"
             : "destructive"
-      return <Badge variant={variant as any} className="capitalize">{status}</Badge>
+      return <Badge variant={variant} className="capitalize">{status}</Badge>
     },
     filterFn: (row, id, value) => value.includes(row.getValue(id)),
   },

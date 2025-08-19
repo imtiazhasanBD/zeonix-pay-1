@@ -26,6 +26,13 @@
 // Save as: app/payment-gateway/page.tsx
 // Deps: npm i framer-motion lucide-react
 
+
+declare module 'react' {
+  interface CSSProperties {
+    [key: `--${string}`]: string | number;
+  }
+}
+
 import React from "react";
 import { motion } from "framer-motion";
 import {
@@ -44,8 +51,6 @@ import {
 } from "lucide-react";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { FaFacebookMessenger } from "react-icons/fa";
-import { FaTelegram } from "react-icons/fa";
-import { FaLinkedin } from "react-icons/fa6";
 import Image from "next/image";
 
 const BRAND = {
@@ -58,6 +63,11 @@ const BRAND = {
   tint300: "#e9e3ff",
 };
 
+const style: React.CSSProperties = {
+  '--brand': BRAND.primary,
+  '--brand-soft': BRAND.primarySoft,
+  '--ring': 'rgba(103,76,196,0.15)',
+};
 
 const techStacks = [
   { name: "Next.js", logo: "https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original-wordmark.svg" },
@@ -132,15 +142,7 @@ export default function PaymentGatewayLanding() {
   return (
     <div
       className="relative min-h-screen bg-gradient-to-b from-white to-gray-50"
-      style={{
-        // expose brand css vars for subtle accenting
-        // @ts-ignore
-        "--brand": BRAND.primary,
-        // @ts-ignore
-        "--brand-soft": BRAND.primarySoft,
-        // @ts-ignore
-        "--ring": "rgba(103,76,196,0.15)",
-      }}
+      style={style}
     >
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">

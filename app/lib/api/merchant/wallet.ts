@@ -1,17 +1,18 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../authOptions";
+import { getAccessToken } from "../../getToken";
 
 export async function getWalletTransactions() {
 
   const baseUrl = process.env.BASE_URL;
   const session = await getServerSession(authOptions);
-  const token = (session as any)?.accessToken?.access;
+  const token = getAccessToken(session);
 
   if (!token) throw new Error("Not authenticated");
 
   const res = await fetch(`${baseUrl}/u/wallet/wallet-transaction/`, {
     headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
-    cache: "no-store",
+    cache: 'force-cache',
   });
 
   if (!res.ok) {

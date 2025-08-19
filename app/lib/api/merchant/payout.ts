@@ -1,15 +1,12 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../authOptions";
 import { redirect } from "next/navigation";
+import { getAccessToken } from "../../getToken";
 
 export async function getPayoutList() {
   const baseUrl = process.env.BASE_URL;
   const session = await getServerSession(authOptions);
-
-  const token =
-    (session as any)?.accessToken?.access ??
-    (session as any)?.accessToken ??
-    (session as any)?.user?.token;
+  const token = getAccessToken(session);
 
   if (!token) throw new Error("Not authenticated");
 

@@ -46,7 +46,7 @@ export function Header({ role, collapsed, toggleSidebar }: SideNavProps) {
   };
 
   return (
-    <header className={`flex h-14 items-center justify-between gap-4 border-b bg-card px-4 lg:h-[70px] lg:px-6 sticky top-0 z-10 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'} transition-all duration-300 ease-in-out`} >
+    <header className={`flex h-14 items-center justify-between gap-4 border-b bg-card px-4 lg:h-[70px] lg:px-6 sticky top-0 z-30 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'} transition-all duration-300 ease-in-out`} >
       <div className="flex gap-2 items-center justify-center">
         {/* Toggle Button for Mobile */}
         <button

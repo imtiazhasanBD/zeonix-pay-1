@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./lib/authOptions";
 import Providers from "./providers";
+import { getOverview } from "./lib/api/merchant/overview";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,13 +39,21 @@ export default async function RootLayout({
 }>) {
   const role = await getUserRole();
   const session = await getServerSession(authOptions);
+  let balance = "100445" 
+  if (role === "merchant") {
+    const { data } = await getOverview();
+    balance = data.balance
+    console.log(data.balance);
+  }
+
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >  <Providers session={session}>
-        <WithOutLayout role={role ?? undefined}> {children}</WithOutLayout>
-        <Toaster position="bottom-right" />
+          <WithOutLayout role={role ?? undefined} balance={balance}> {children}</WithOutLayout>
+          <Toaster position="bottom-right" />
         </Providers>
 
       </body>

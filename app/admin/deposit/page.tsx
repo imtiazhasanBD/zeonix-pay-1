@@ -392,8 +392,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { getWithdrawRequests } from "@/app/lib/api/merchant/withdraw-request";
-import Report from "@/app/components/merchant/withdraw-request/report";
 import { getDepositList } from "@/app/lib/api/merchant/deposite";
 import DepositTable from "@/app/components/merchant/deposit/DepositTable";
 import { getPayoutList } from "@/app/lib/api/merchant/payout";

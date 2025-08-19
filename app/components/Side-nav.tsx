@@ -52,16 +52,17 @@ type SideNavProps = {
   collapsed: boolean;
   toggleSidebar: () => void;
   role?: 'admin' | 'merchant' | 'staff';
+  balance: String
 };
 
 
 
-export function SideNav({ role, collapsed, toggleSidebar }: SideNavProps) {
+export function SideNav({ role, collapsed, toggleSidebar, balance }: SideNavProps) {
   const pathname = usePathname();
   const [activeSubItem, setActiveSubItem] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   // Balance state
-  const balance = 689098;
+
   const [showBalance, setShowBalance] = useState(true);
 
   // Track which popover is open (when collapsed)
@@ -143,9 +144,9 @@ export function SideNav({ role, collapsed, toggleSidebar }: SideNavProps) {
     () =>
       new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: "BDT",
         maximumFractionDigits: 0,
-      }).format(balance),
+      }).format(Number(balance)),
     [balance]
   );
 

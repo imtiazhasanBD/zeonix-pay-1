@@ -13,6 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
+// derive the exact types from your Button component
+type ButtonVariant = React.ComponentProps<typeof Button>["variant"];
+type ButtonSize = React.ComponentProps<typeof Button>["size"];
 
 export default function ConfirmAction({
   triggerLabel,
@@ -29,8 +32,8 @@ export default function ConfirmAction({
   description?: string;
   onConfirm: () => Promise<void> | void;
   confirmLabel?: string;
-  triggerVariant?: any;
-  triggerSize?: any;
+  triggerVariant?: ButtonVariant; // <-- no any
+  triggerSize?: ButtonSize;
   destructive?: boolean;
 }) {
   const [open, setOpen] = useState(false);

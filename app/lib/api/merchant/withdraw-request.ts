@@ -1,10 +1,11 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../authOptions";
+import { getAccessToken } from "../../getToken";
 
 export async function getWithdrawRequests() {
   const baseUrl = process.env.BASE_URL;
   const session = await getServerSession(authOptions);
-  const token = (session as any)?.accessToken?.access;
+  const token = getAccessToken(session);
 
   if (!token) throw new Error("Not authenticated");
 

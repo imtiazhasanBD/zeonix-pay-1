@@ -101,7 +101,7 @@ export const depositColumns: ColumnDef<Deposit>[] = [
       const formatted = isFinite(amount)
         ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'BDT' }).format(amount)
         : row.getValue("customer_amount")
-      return <div className="text-left font-medium">{formatted as any}</div>
+      return <div className="text-left font-medium">{formatted as string}</div>
     },
   },
   {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/authOptions";
+import { getAccessToken } from "@/app/lib/getToken";
 
 
 export const dynamic = "force-dynamic";
@@ -12,10 +13,8 @@ export async function GET() {
   let headers: HeadersInit = { Accept: "application/json" };
   try {
     const session = await getServerSession(authOptions);
-    const token =
-      (session as any)?.accessToken?.access ??
-      (session as any)?.accessToken ??
-      (session as any)?.user?.token;
+     const token = getAccessToken(session);;
+
     if (token) headers = { ...headers, Authorization: `Bearer ${token}` };
   } catch {}
 
