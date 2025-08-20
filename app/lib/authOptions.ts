@@ -162,9 +162,9 @@ export const authOptions: NextAuthOptions = {
 
         const role = (credentials.role as LoginRole) ?? "merchant";
         const endpointMap: Record<LoginRole, string> = {
-          merchant: "http://192.168.68.142:8000/api/v1/auth/merchant/login/",
-          admin: "http://192.168.68.142:8000/api/v1/auth/admin/login/",
-          staff: "http://192.168.68.142:8000/api/v1/auth/staff/login/",
+          merchant: "http://192.168.68.133:8000/api/v1/auth/merchant/login/",
+          admin: "http://192.168.68.133:8000/api/v1/auth/admin/login/",
+          staff: "http://192.168.68.133:8000/api/v1/auth/staff/login/",
         };
         const apiUrl = endpointMap[role];
 

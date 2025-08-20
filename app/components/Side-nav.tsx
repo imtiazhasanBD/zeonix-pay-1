@@ -52,7 +52,7 @@ type SideNavProps = {
   collapsed: boolean;
   toggleSidebar: () => void;
   role?: 'admin' | 'merchant' | 'staff';
-  balance: String
+  balance: string
 };
 
 

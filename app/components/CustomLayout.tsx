@@ -7,7 +7,7 @@ import { Header } from "./Header";
 
 import { ReactNode } from "react";
 
-const CustomLayout = ({ children, role, balance }: { children: ReactNode, role?: 'admin' | 'merchant' | 'staff', balance:String })  => {
+const CustomLayout = ({ children, role, balance }: { children: ReactNode, role?: 'admin' | 'merchant' | 'staff', balance:string })  => {
 
   const [collapsed, setCollapsed] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < 1024 : false

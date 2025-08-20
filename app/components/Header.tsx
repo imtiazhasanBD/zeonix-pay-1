@@ -45,6 +45,12 @@ export function Header({ role, collapsed, toggleSidebar }: SideNavProps) {
     signOut({ callbackUrl: redirectMap[role || 'merchant'] });
   };
 
+
+  const handleClick = () => {
+    const url = `/${role}/profile`;
+    router.push(url);
+  };
+
   return (
     <header className={`flex h-14 items-center justify-between gap-4 border-b bg-card px-4 lg:h-[70px] lg:px-6 sticky top-0 z-30 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'} transition-all duration-300 ease-in-out`} >
       <div className="flex gap-2 items-center justify-center">
@@ -97,7 +103,7 @@ export function Header({ role, collapsed, toggleSidebar }: SideNavProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push("/merchant/profile")}>
+              <DropdownMenuItem onClick={handleClick}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>

@@ -29,7 +29,7 @@ export default function PaymentPage() {
 
     setLoading(true);
 
-    const base = "http://192.168.68.142:8000/api/v1";
+    const base = "http://192.168.68.133:8000/api/v1";
     const path =
       selectedGateway === "bkash-merchant"
         ? "get-payment/bkash"

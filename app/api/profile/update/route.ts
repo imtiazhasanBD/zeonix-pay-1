@@ -1,14 +1,13 @@
-// app/api/merchant/payment-methods/route.ts
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/authOptions";
 import { getAccessToken } from "@/app/lib/getToken";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs"; // ensure Node runtime for next-auth
+export const runtime = "nodejs"; 
 
-export async function POST(req: Request) {
-  const baseUrl = process.env.BASE_URL ?? "http://192.168.68.133:8000/api/v1";
+export async function PUT(req: Request) {
+  const baseUrl = process.env.BASE_URL
   const session = await getServerSession(authOptions);
   const token = getAccessToken(session);
 
@@ -18,9 +17,10 @@ export async function POST(req: Request) {
   }
 
   const payload = await req.json();
+console.log(payload);
 
-  const upstream = await fetch(`${baseUrl}/u/wallet/payment-methods/`, {
-    method: "POST",
+  const upstream = await fetch(`${baseUrl}/profile/update/`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
