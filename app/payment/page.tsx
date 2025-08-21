@@ -1,16 +1,65 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, ShieldCheck, ChevronDown, Smartphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import BkashAgentFlow from "../components/BkashAgentFlow";
+import { useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
 
-type GatewayKey = "bkash-merchant" | "bkash-agent" | "nagad";
+// Define types for invoiceData
+interface InvoiceData {
+  invoice: {
+    amount: number;
+  };
+  mechant_info: {
+    brand_name: string;
+    brand_logo: string;
+  };
+  payment_methods: string[];
+}
+
+type GatewayKey = "bkash-merchant" | "bkash-personal" | "bkash-agent" | "nagad-merchant" | "nagad-personal" | "nagad-agent" | "rocket-merchant" | "rocket-personal" | "rocket-agent";
 
 export default function PaymentPage() {
   const [loading, setLoading] = useState(false);
   const [selectedGateway, setSelectedGateway] = useState<GatewayKey | null>(null);
+  const [validInvoice, setValidInvoice] = useState(true); // To check if the invoice is valid
+  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null); // Store invoice data for rendering
+  const searchParams = useSearchParams();
+  const invoice_payment_id: string | null = searchParams.get('invoice_payment_id');
+
+  useEffect(() => {
+    const fetchInvoiceData = async () => {
+      try {
+        const res = await fetch(`${process.env.BASE_URL}/get-payment/?invoice_payment_id=${invoice_payment_id}`, {
+          cache: "no-store",
+        });
+
+        const data = await res.json();
+        console.log("data:", data);
+
+        if (res.ok && data.status) {
+          setInvoiceData(data);
+        } else {
+          setValidInvoice(false); // Invalid invoice
+        }
+      } catch (error) {
+        console.error("Error fetching invoice data:", error);
+        setValidInvoice(false);
+      }
+    };
+
+    fetchInvoiceData();
+  }, [invoice_payment_id]);
+
+  console.log(selectedGateway);
+
+  // Safely access the data (with optional chaining)
+  const invoice = invoiceData?.invoice;
+  const mechant_info = invoiceData?.mechant_info;
+  const payment_methods = invoiceData?.payment_methods;
 
   // ---- DUMMY merchant + invoice (replace with real data later) ----
   const merchant = {
@@ -18,31 +67,51 @@ export default function PaymentPage() {
     logo: "/sefu_logo.jpeg",
     processorBrand: "/zeonix-logo.png",
   };
-  const invoice_payment_id = "abcb3881f44b4ae2ac56c45fcea7ff74";
 
   const amount = 1250;
   const currency = "BDT";
 
   const onPay = async () => {
     if (!selectedGateway) return;
+
+    if (selectedGateway.includes("nagad") || selectedGateway.includes("rocket")) {
+      toast("This payment method is coming soon!", {
+        icon: '👏',
+      });
+      return;
+    }
+
     if (selectedGateway === "bkash-agent") return;
 
     setLoading(true);
 
-    const base = "http://192.168.68.133:8000/api/v1";
+    const base = process.env.BASE_URL;
     const path =
       selectedGateway === "bkash-merchant"
         ? "get-payment/bkash"
         : "get-payment/nagad";
 
-    const url =
-      `${base}/${path}/?invoice_payment_id=${encodeURIComponent(
-        invoice_payment_id
-      )}&redirect=1`;
+    const url = `${base}/${path}/?invoice_payment_id=${encodeURIComponent(
+      invoice_payment_id ?? ""
+    )}&redirect=1`;
 
     await new Promise((r) => setTimeout(r, 200));
     window.location.href = url;
   };
+  
+   
+
+  if (!validInvoice) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold text-red-500">Invalid Invoice Payment ID</h1>
+          <p>The invoice you are trying to access could not be found.</p>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4 w-full">
@@ -68,14 +137,14 @@ export default function PaymentPage() {
           <div className="px-6 pt-6">
             <div className="flex items-center gap-3">
               <div className="grid h-12 w-12 place-items-center rounded-xl bg-violet-100 text-violet-700 font-semibold overflow-hidden">
-                <Image src={merchant.logo} alt="brand-logo" width={48} height={48} className="object-contain" />
+                <Image src={mechant_info?.brand_logo || "/zeonix-logo.png"} alt="brand-logo" width={48} height={48} className="object-contain" />
               </div>
               <div className="flex-1">
                 <div className="text-sm uppercase tracking-wider text-slate-500">Merchant</div>
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold text-slate-900">{merchant.name}</p>
-                  <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-                    Invoice <span className="ml-1 font-semibold">{invoice_payment_id.slice(0, 8)}</span>
+                  <p className="font-semibold text-slate-900">{mechant_info?.brand_name || "Unknown Merchant"}</p>
+                  <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                    Invoice <span className="ml-1 font-semibold">{invoice_payment_id?.slice(0, 8)}</span>
                   </span>
                 </div>
               </div>
@@ -102,14 +171,20 @@ export default function PaymentPage() {
               onSelect={(key) => setSelectedGateway(key)}
               options={[
                 { key: "bkash-merchant", name: "bKash (Merchant)", logo: "/geteway/bkash.svg" },
+                { key: "bkash-personal", name: "bKash (Personal)", logo: "/geteway/bkash.svg" },
                 { key: "bkash-agent", name: "bKash (Agent)", logo: "/geteway/bkash.svg" },
-                { key: "nagad", name: "Nagad", logo: "/geteway/Nagad.svg" },
+                { key: "nagad-merchant", name: "Nagad (Merchant)", logo: "/geteway/nagad.svg" },
+                { key: "nagad-personal", name: "Nagad (Personal)", logo: "/geteway/nagad.svg" },
+                { key: "nagad-agent", name: "Nagad (Agent)", logo: "/geteway/nagad.svg" },
+                { key: "rocket-merchant", name: "Rocket (Merchant)", logo: "/geteway/rocket.svg" },
+                { key: "rocket-personal", name: "Rocket (Personal)", logo: "/geteway/rocket.svg" },
+                { key: "rocket-agent", name: "Rocket (Agent)", logo: "/geteway/Rocket.svg" },
               ]}
             />
 
             {/* Inline Agent flow — only when bkash-agent is selected */}
             <AnimatePresence mode="wait">
-              {selectedGateway === "bkash-agent" && (
+              {!selectedGateway?.includes("merchant") && (
                 <motion.div
                   key="bkash-agent-flow"
                   initial={{ opacity: 0, y: 8 }}
@@ -120,15 +195,16 @@ export default function PaymentPage() {
                 >
                   <BkashAgentFlow
                     merchantName={merchant.name}
-                    merchantInvoiceId={invoice_payment_id}
+                    merchantInvoiceId={invoice_payment_id ?? ''}
                     merchantLogoSrc={"/geteway/bkash.svg"}
-                    receiverMsisdn={"01770618575"}   // TODO: inject from server
-                    amount={amount}
+                    receiverMsisdn={"01770618575"}
+                    amount={invoice?.amount || 0}
                     onClose={() => setSelectedGateway(null)}
                     onBack={() => setSelectedGateway(null)}
                     onVerifyTrx={async (trxId) => {
                       alert(`Verifying bKash Agent TRX: ${trxId}`);
                     }}
+                    paymentMethod={selectedGateway?? ""}
                   />
                 </motion.div>
               )}
@@ -136,7 +212,7 @@ export default function PaymentPage() {
           </div>
 
           {/* footer actions — hidden for bkash-agent */}
-          {selectedGateway !== "bkash-agent" && (
+          {selectedGateway?.includes("merchant") && (
             <div className="space-y-3 px-6 pb-6 pt-2">
               <button
                 onClick={onPay}
@@ -149,7 +225,7 @@ export default function PaymentPage() {
                   </span>
                 ) : (
                   <span>
-                    Pay {currency} {amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    Pay {currency} {invoice?.amount.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}
                   </span>
                 )}
               </button>
@@ -172,7 +248,7 @@ export default function PaymentPage() {
                 <div className="flex items-end justify-end gap-4 text-xs text-slate-500">
                   <ShieldCheck className="h-4 w-4" />
                   <span>Securely processed by</span>
-                  <Image src={merchant.processorBrand} alt="processor_logo" width={80} height={80} className="object-contain" />
+                  <Image src="/zeonix-logo.png" alt="processor_logo" width={80} height={80} className="object-contain" />
                 </div>
               </div>
             </div>
@@ -199,7 +275,7 @@ function OptionGrid({
   selected,
   onSelect,
 }: {
-  options: { key: "bkash-merchant" | "bkash-agent" | "nagad"; name: string; logo?: string }[];
+  options: { key: GatewayKey; name: string; logo?: string }[]; // Updated to use GatewayKey type
   selected: GatewayKey | null;
   onSelect: (k: GatewayKey) => void;
 }) {
@@ -207,7 +283,10 @@ function OptionGrid({
     <div className="grid grid-cols-3 gap-3">
       {options.map((opt) => {
         const isActive = selected === opt.key;
-        const tag = opt.key.startsWith("bkash-") ? opt.key.split("bkash-")[1].toUpperCase() : null;
+        const tag =
+          opt.key.startsWith("bkash-") || opt.key.startsWith("nagad-") || opt.key.startsWith("rocket-")
+            ? opt.key.split("-")[1].toUpperCase()
+            : null;
 
         return (
           <button

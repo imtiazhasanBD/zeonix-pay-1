@@ -39,12 +39,14 @@ export default async function RootLayout({
 }>) {
   const role = await getUserRole();
   const session = await getServerSession(authOptions);
-  let balance = "100445" 
-  if (role === "merchant") {
+  let balance = "100445"; 
+
+  if (!role == null) {
     const { data } = await getOverview();
-    balance = data.balance
+    balance = data.balance;
     console.log(data.balance);
   }
+
 
 
   return (

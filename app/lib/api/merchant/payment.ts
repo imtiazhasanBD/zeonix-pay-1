@@ -3,16 +3,16 @@ import { authOptions } from "../../authOptions";
 import { redirect } from "next/navigation";
 import { getAccessToken } from "../../getToken";
 
-export async function getApiKey() {
-  const session = await getServerSession(authOptions);
+export async function getOverview() {
   const baseUrl = process.env.BASE_URL;
+  const session = await getServerSession(authOptions);
   const token = getAccessToken(session);
 
   if (!token) throw new Error("Not authenticated");
 
   let res: Response;
   try {
-    res = await fetch(`${baseUrl}/app/keys/`, {
+    res = await fetch(`${baseUrl}/u/wallet/wallet-overview/`, {
       headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
       cache: "no-store",
     });

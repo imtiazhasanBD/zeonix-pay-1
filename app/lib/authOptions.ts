@@ -144,6 +144,7 @@ declare module "next-auth/jwt" {
     accessToken: string;
   }
 }
+const baseUrl = process.env.BASE_URL;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -159,15 +160,15 @@ export const authOptions: NextAuthOptions = {
         _req
       ): Promise<User | null> {
         if (!credentials) return null;
-
+        
         const role = (credentials.role as LoginRole) ?? "merchant";
         const endpointMap: Record<LoginRole, string> = {
-          merchant: "http://192.168.68.133:8000/api/v1/auth/merchant/login/",
-          admin: "http://192.168.68.133:8000/api/v1/auth/admin/login/",
-          staff: "http://192.168.68.133:8000/api/v1/auth/staff/login/",
+          merchant: `${baseUrl}/auth/merchant/login/`,
+          admin: `${baseUrl}/auth/admin/login/`,
+          staff: `${baseUrl}/auth/staff/login/`,
         };
         const apiUrl = endpointMap[role];
-
+        
         const res = await fetch(apiUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -176,15 +177,16 @@ export const authOptions: NextAuthOptions = {
             password: credentials.password,
           }),
         });
-
+        console.log(baseUrl);
+        
         if (!res.ok) {
           let apiErr: { message?: string } = { message: "Login failed" };
           try { apiErr = await res.json(); } catch {}
           throw new Error(apiErr.message ?? "Login failed");
         }
-
+        
         const apiUser: APIUser = await res.json();
-
+        
         // Return a NextAuth User 
         const user: AuthUser = {
           id: String(apiUser.id),

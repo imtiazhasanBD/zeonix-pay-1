@@ -9,8 +9,9 @@ export default function WithOutLayout({ children, role, balance }: { children: R
   const isHonePage = pathname === ('/');
   const isServerDownPage = pathname === ('/server-down');
   const isPaymentPage = pathname === ('/payment');
+  const isSuccessPage = pathname === ('/success');
 
   
 
-  return isLoginPage || isHonePage || isServerDownPage || isPaymentPage? children : <CustomLayout role={role} balance={balance}>{children}</CustomLayout>;
+  return isLoginPage || isHonePage || isServerDownPage || isPaymentPage || isSuccessPage? children : <CustomLayout role={role} balance={balance}>{children}</CustomLayout>;
 }

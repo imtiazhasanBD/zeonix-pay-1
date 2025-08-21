@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const payload = await req.json();
     console.log(payload);
 
-    const upstream = await fetch(`${baseUrl}/api/keys/`, {
+    const upstream = await fetch(`${baseUrl}/app/keys/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         cache: "no-store",
@@ -53,7 +53,7 @@ export async function PATCH(req: Request) {
         return NextResponse.json({ message: "Invalid input data" }, { status: 400 });
     }
 
-    const upstream = await fetch(`${baseUrl}/api/keys/`, {
+    const upstream = await fetch(`${baseUrl}/app/keys/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ is_active }),
